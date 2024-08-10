@@ -1,0 +1,177 @@
+
+button:hover {
+    box-shadow: 2px 2px;
+}
+body {
+    margin: 0;
+    display: flex;
+    min-width: 320px;
+    min-height: 100vh;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
+}
+#outer {
+    width: 100%;
+    text-align: center;
+}
+
+#backgroundcolor1 {
+    background: rgb(172, 180, 248);
+}
+
+#backgroundcolor2 {
+    background: rgb(162, 254, 237);
+}
+
+#backgroundcolor3 {
+    background: rgb(204, 71, 207);
+}
+
+.inner {
+    display: inline-block;
+}
+
+.ulHeader {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
+
+.liHeader {
+    float: left;
+}
+
+li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+/* Custom styles for the header navigation */
+.navbar {
+    margin-bottom: 1rem;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.navbar-nav .nav-item .nav-link {
+    margin-right: 1rem;
+    font-size: 1rem;
+    color: #6c757d;
+}
+
+    .navbar-nav .nav-item .nav-link:hover {
+        color: slategray;
+    }
+/* a box for the around the Buttons for Grades */
+.aboveText {
+    position: relative;
+    top: -35%;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.box {
+    min-height: 10cm;
+    border: 1px solid black;
+    padding: 10px;
+    margin: 1px;
+    background: rgb(236, 236, 236);
+    overflow: hidden;
+    margin-right: 0.5cm;
+    border-radius: 10px;
+    margin-bottom: 0.5cm;
+    box-shadow: 1px 1px;
+}
+
+.QuestionInteface {
+    box-shadow: 1px 1px;
+    width: 2.5cm;
+    height: 1cm;
+    overflow: visible;
+    margin-right: 0cm;
+    border-radius: 1px;
+    margin-bottom: 0cm;
+    background-color: #f8f9fa;
+    border: 1px solid #ccc;
+    transition: box-shadow 0.3s ease;
+}
+
+#RedColor {
+    color: red;
+    background-color: white;
+    border: 1px solid #ccc;
+}
+
+.QuestionRemoveBtn:hover {
+    box-shadow: 0px 0px;
+}
+
+.SameRow {
+    display: flex;
+    justify-content: space-between;
+}
+
+.number-box {
+    background-color: white;
+    color: white;
+    padding: 10px;
+    padding-left: 0px;
+    font-weight: bold;
+    margin-left: 0px;
+}
+
+.p1BoarderBlack {
+    padding: 10px;
+    border: 1px solid black;
+    color: black
+}
+
+#SmallerImage {
+    width: 40px;
+    height: 40px
+}
+
+#FinalMessge {
+    margin: 10px;
+    padding: 5px;
+    width: 70%;
+    height: 40px;
+}
+
+#Title {
+    margin: 10px;
+    padding: 5px;
+    width: 70%;
+    height: 40px;
+}
+
+.QuestionInterfaceSelctor {
+    width: 6cm;
+    height: 40px;
+    padding: 5px;
+}
+
+
+
+.popupAddQuestion-context {
+    height: 350px;
+    width: 500px;
+    background: white;
+    justify-content: center;
+    align-self: center;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+#SmallerImage {
+    width: 40px;
+    height: 40px
+}

@@ -1,0 +1,6 @@
+@QuestionInterfaceTry101.Server_HostAddress = http://localhost:5253
+
+GET {{QuestionInterfaceTry101.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
