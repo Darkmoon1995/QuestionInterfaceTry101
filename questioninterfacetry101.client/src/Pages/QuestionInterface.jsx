@@ -13,23 +13,22 @@ const QuestionInterface = () => {
     const [worksheetTitle, setWorksheetTitle] = useState('');
     const [worksheetFinalMessage, setWorksheetFinalMessage] = useState('');
     const [worksheetType, setWorksheetType] = useState('');
-    const [userId, setUserId] = useState('');
 
     const handleSaveAll = async () => {
         try {
             const worksheetData = {
                 Title: {
                     Text: worksheetTitle,
-                    Config: { Style: '', Styledegree: '' }
+                    Config: { Style: 'a', Styledegree: 'b' }
                 },
                 FinalMessage: {
                     Text: worksheetFinalMessage,
-                    Config: { Style: '', Styledegree: '' }
+                    Config: { Style: 'a', Styledegree: 'b' }
                 },
                 WorksheetType: worksheetType,
                 Qus: questions.map((q, index) => ({
                     Order: index + 1,
-                    Title: { Text: '', Config: { Style: '', Styledegree: '' } },
+                    Title: { Text: 'You need only add one to each number.', Config: { Style: 'b', Styledegree: 'a' } },
                     Settings: {
                         Number1: parseInt(q.number1, 10),
                         Number2: parseInt(q.number2, 10),
@@ -38,7 +37,6 @@ const QuestionInterface = () => {
                     NumberOfOptions: 0,
                     Sct: parseInt(q.sct, 10)
                 })),
-                UserId: userId
             };
 
             await axios.post('/api/worksheets', worksheetData);

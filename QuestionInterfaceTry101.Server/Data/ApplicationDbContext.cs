@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using QuestionInterfaceTry101.Server.Model;
 
 namespace QuestionInterfaceTry101.Server.Data
 {
@@ -10,12 +11,29 @@ namespace QuestionInterfaceTry101.Server.Data
         {
         }
 
+        public DbSet<WorksheetModel> Worksheets { get; set; }
+        public DbSet<qusModel> qus { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            // Customize the ASP.NET Identity model and override the defaults if needed.
-            // For example, you can rename the ASP.NET Identity table names and more.
-            // Add your customizations after calling base.OnModelCreating(builder);
+
+            builder.Entity<WorksheetModel>().OwnsOne(w => w.Title, t =>
+            {
+                t.OwnsOne(tt => tt.Config);
+            });
+            builder.Entity<WorksheetModel>().OwnsOne(w => w.FinalMessage, f =>
+            {
+                f.OwnsOne(ff => ff.Config);
+            });
+
+            builder.Entity<qusModel>().OwnsOne(q => q.Title, t =>
+            {
+                t.OwnsOne(tt => tt.Config);
+            });
+            builder.Entity<qusModel>().OwnsOne(q => q.Settings);
+
+            builder.Entity<qusModel>().ToTable("qus");
         }
     }
 }

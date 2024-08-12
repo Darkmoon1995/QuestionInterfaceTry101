@@ -51,6 +51,28 @@ namespace QuestionInterfaceTry101.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Worksheets",
+                columns: table => new
+                {
+                    WorksheetId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SkillId = table.Column<int>(type: "int", nullable: false),
+                    Number = table.Column<int>(type: "int", nullable: false),
+                    Level = table.Column<int>(type: "int", nullable: false),
+                    Title_Text = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Title_Config_Style = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Title_Config_Styledegree = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FinalMessage_Text = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FinalMessage_Config_Style = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FinalMessage_Config_Styledegree = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    WorksheetType = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Worksheets", x => x.WorksheetId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -156,6 +178,32 @@ namespace QuestionInterfaceTry101.Server.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "qus",
+                columns: table => new
+                {
+                    Order = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title_Text = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Title_Config_Style = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Title_Config_Styledegree = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Settings_Operation = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Settings_Number1 = table.Column<int>(type: "int", nullable: false),
+                    Settings_Number2 = table.Column<int>(type: "int", nullable: false),
+                    NumberOfOptions = table.Column<int>(type: "int", nullable: false),
+                    Sct = table.Column<int>(type: "int", nullable: false),
+                    WorksheetModelWorksheetId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_qus", x => x.Order);
+                    table.ForeignKey(
+                        name: "FK_qus_Worksheets_WorksheetModelWorksheetId",
+                        column: x => x.WorksheetModelWorksheetId,
+                        principalTable: "Worksheets",
+                        principalColumn: "WorksheetId");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -194,6 +242,11 @@ namespace QuestionInterfaceTry101.Server.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_qus_WorksheetModelWorksheetId",
+                table: "qus",
+                column: "WorksheetModelWorksheetId");
         }
 
         /// <inheritdoc />
@@ -215,10 +268,16 @@ namespace QuestionInterfaceTry101.Server.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "qus");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Worksheets");
         }
     }
 }

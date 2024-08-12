@@ -35,8 +35,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Controllers\" />
-	  <Folder Include="Model\" />
+		<Folder Include="Migrations\" />
+		<Folder Include="Model\" />
 	</ItemGroup>
 
 </Project>

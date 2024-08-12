@@ -220,6 +220,55 @@ namespace QuestionInterfaceTry101.Server.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("QuestionInterfaceTry101.Server.Model.WorksheetModel", b =>
+                {
+                    b.Property<int>("WorksheetId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WorksheetId"));
+
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SkillId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("WorksheetType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("WorksheetId");
+
+                    b.ToTable("Worksheets");
+                });
+
+            modelBuilder.Entity("QuestionInterfaceTry101.Server.Model.qusModel", b =>
+                {
+                    b.Property<int>("Order")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Order"));
+
+                    b.Property<int>("NumberOfOptions")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Sct")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("WorksheetModelWorksheetId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Order");
+
+                    b.HasIndex("WorksheetModelWorksheetId");
+
+                    b.ToTable("qus", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -269,6 +318,169 @@ namespace QuestionInterfaceTry101.Server.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("QuestionInterfaceTry101.Server.Model.WorksheetModel", b =>
+                {
+                    b.OwnsOne("QuestionInterfaceTry101.Server.Model.FinalMessageModel", "FinalMessage", b1 =>
+                        {
+                            b1.Property<int>("WorksheetModelWorksheetId")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Text")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("WorksheetModelWorksheetId");
+
+                            b1.ToTable("Worksheets");
+
+                            b1.WithOwner()
+                                .HasForeignKey("WorksheetModelWorksheetId");
+
+                            b1.OwnsOne("QuestionInterfaceTry101.Server.Model.ConfigModel", "Config", b2 =>
+                                {
+                                    b2.Property<int>("FinalMessageModelWorksheetModelWorksheetId")
+                                        .HasColumnType("int");
+
+                                    b2.Property<string>("Style")
+                                        .HasColumnType("nvarchar(max)");
+
+                                    b2.Property<string>("Styledegree")
+                                        .HasColumnType("nvarchar(max)");
+
+                                    b2.HasKey("FinalMessageModelWorksheetModelWorksheetId");
+
+                                    b2.ToTable("Worksheets");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("FinalMessageModelWorksheetModelWorksheetId");
+                                });
+
+                            b1.Navigation("Config")
+                                .IsRequired();
+                        });
+
+                    b.OwnsOne("QuestionInterfaceTry101.Server.Model.TitleModel", "Title", b1 =>
+                        {
+                            b1.Property<int>("WorksheetModelWorksheetId")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Text")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("WorksheetModelWorksheetId");
+
+                            b1.ToTable("Worksheets");
+
+                            b1.WithOwner()
+                                .HasForeignKey("WorksheetModelWorksheetId");
+
+                            b1.OwnsOne("QuestionInterfaceTry101.Server.Model.ConfigModel", "Config", b2 =>
+                                {
+                                    b2.Property<int>("TitleModelWorksheetModelWorksheetId")
+                                        .HasColumnType("int");
+
+                                    b2.Property<string>("Style")
+                                        .HasColumnType("nvarchar(max)");
+
+                                    b2.Property<string>("Styledegree")
+                                        .HasColumnType("nvarchar(max)");
+
+                                    b2.HasKey("TitleModelWorksheetModelWorksheetId");
+
+                                    b2.ToTable("Worksheets");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("TitleModelWorksheetModelWorksheetId");
+                                });
+
+                            b1.Navigation("Config")
+                                .IsRequired();
+                        });
+
+                    b.Navigation("FinalMessage")
+                        .IsRequired();
+
+                    b.Navigation("Title")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("QuestionInterfaceTry101.Server.Model.qusModel", b =>
+                {
+                    b.HasOne("QuestionInterfaceTry101.Server.Model.WorksheetModel", null)
+                        .WithMany("qus")
+                        .HasForeignKey("WorksheetModelWorksheetId");
+
+                    b.OwnsOne("QuestionInterfaceTry101.Server.Model.SettingsModel", "Settings", b1 =>
+                        {
+                            b1.Property<int>("qusModelOrder")
+                                .HasColumnType("int");
+
+                            b1.Property<int>("Number1")
+                                .HasColumnType("int");
+
+                            b1.Property<int>("Number2")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Operation")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("qusModelOrder");
+
+                            b1.ToTable("qus");
+
+                            b1.WithOwner()
+                                .HasForeignKey("qusModelOrder");
+                        });
+
+                    b.OwnsOne("QuestionInterfaceTry101.Server.Model.TitleModel", "Title", b1 =>
+                        {
+                            b1.Property<int>("qusModelOrder")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Text")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("qusModelOrder");
+
+                            b1.ToTable("qus");
+
+                            b1.WithOwner()
+                                .HasForeignKey("qusModelOrder");
+
+                            b1.OwnsOne("QuestionInterfaceTry101.Server.Model.ConfigModel", "Config", b2 =>
+                                {
+                                    b2.Property<int>("TitleModelqusModelOrder")
+                                        .HasColumnType("int");
+
+                                    b2.Property<string>("Style")
+                                        .HasColumnType("nvarchar(max)");
+
+                                    b2.Property<string>("Styledegree")
+                                        .HasColumnType("nvarchar(max)");
+
+                                    b2.HasKey("TitleModelqusModelOrder");
+
+                                    b2.ToTable("qus");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("TitleModelqusModelOrder");
+                                });
+
+                            b1.Navigation("Config")
+                                .IsRequired();
+                        });
+
+                    b.Navigation("Settings")
+                        .IsRequired();
+
+                    b.Navigation("Title")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("QuestionInterfaceTry101.Server.Model.WorksheetModel", b =>
+                {
+                    b.Navigation("qus");
                 });
 #pragma warning restore 612, 618
         }
