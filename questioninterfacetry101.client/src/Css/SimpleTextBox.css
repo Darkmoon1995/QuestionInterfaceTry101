@@ -1,0 +1,56 @@
+.TextBoxlabel {
+    background: #E03616;
+    padding: 10px;
+    
+    border-radius: 3px 0 0 3px;
+    margin-top: 1%;
+}
+.TextBoxinput {
+    margin-top: 1%;
+    padding: 10px;
+    border: 1px solid lightgray;
+    height: 20px;
+    display: inline-block;
+    border-radius: 0 3px 3px 0;
+}
+.TextBoxSelect {
+    height: 20px !important;
+    margin-top: 1%;
+    padding: 10px;
+    border: 1px solid lightgray;
+    display: inline-block;
+    border-radius: 0 3px 3px 0;
+}
+.custom-btn {
+    width: 130px;
+    height: 40px;
+    color: #fff;
+    border-radius: 5px;
+    padding: 10px 25px;
+    font-family: 'Lato', sans-serif;
+    font-weight: 500;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    display: inline-block;
+    box-shadow: inset 2px 2px 2px 0px rgba(255,255,255,.5), 7px 7px 20px 0px rgba(0,0,0,.1), 4px 4px 5px 0px rgba(0,0,0,.1);
+    outline: none;
+}
+
+
+.RedButton {
+    background: rgb(96,9,240);
+    background: linear-gradient(0deg, red 0%, #FFCCCB 100%);
+    border: none;
+}
+.BlueButton {
+    background: rgb(96,9,240);
+    background: linear-gradient(0deg, blue 0%, #ADD8E6 100%);
+    border: none;
+}
+.GreenButton {
+    background: rgb(96,9,240);
+    background: linear-gradient(0deg, Green 0%, #90EE90 100%);
+    border: none;
+}

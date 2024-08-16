@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import ReactModal from 'react-modal';
 import axios from 'axios';
 import '../Css/QuestionInterface.css';
+import '../Css/SimpleTextBox.css';
+import '../Css/WierdDivCss.css';
+
 
 const QuestionInterface = () => {
     const [questions, setQuestions] = useState([]);
@@ -14,7 +17,8 @@ const QuestionInterface = () => {
     const [worksheetFinalMessage, setWorksheetFinalMessage] = useState('');
     const [worksheetType, setWorksheetType] = useState('');
 
-    const handleSaveAll = async () => {
+    const handleSaveAll = async (
+    ) => {
         try {
             const worksheetData = {
                 Title: {
@@ -28,7 +32,10 @@ const QuestionInterface = () => {
                 WorksheetType: worksheetType,
                 Qus: questions.map((q, index) => ({
                     Order: index + 1,
-                    Title: { Text: 'You need only add one to each number.', Config: { Style: 'b', Styledegree: 'a' } },
+                    Title: {
+                        Text: q.title, 
+                        Config: { Style: 'b', Styledegree: 'a' }
+                    },
                     Settings: {
                         Number1: parseInt(q.number1, 10),
                         Number2: parseInt(q.number2, 10),
@@ -36,17 +43,21 @@ const QuestionInterface = () => {
                     },
                     NumberOfOptions: 0,
                     Sct: parseInt(q.sct, 10)
-                })),
+                }))
             };
 
-            await axios.post('/api/worksheets', worksheetData);
+            console.log("Sending worksheet data to the server:", worksheetData);
+
+            const response = await axios.post('https://localhost:7226/api/Worksheet', worksheetData);
+            console.log("Response from server:", response);
+
             alert('Worksheet saved successfully!');
         } catch (error) {
             console.error('Error saving worksheet:', error);
             alert('Failed to save worksheet.');
         }
     };
-
+    
     const handleAddQuestion = () => {
         const newQuestion = {
             id: questions.length + 1,
@@ -77,8 +88,7 @@ const QuestionInterface = () => {
         <div>
             <h3>WorkSheet</h3>
             <p>
-                <button className="QuestionInteface" id="Save" onClick={handleSaveAll}>Save</button>
-                <button className="QuestionInteface" id="remove">Remove</button>
+                <button class="custom-btn BlueButton"  id="Save" onClick={handleSaveAll}>Save</button>
             </p>
 
             <form id="worksheetForm">
@@ -100,20 +110,34 @@ const QuestionInterface = () => {
             </form>
 
             <div className="SameRow">
-                <select name="Topics" className="QuestionInterfaceSelctor" id="Topic">
-                    <option value={1}>Topics1</option>
-                    <option value={2}>Topics2</option>
-                    <option value={3}>Topics3</option>
+                <select
+                    name="Topics"
+                    className="QuestionInterfaceSelctor"
+                    id="Topic"
+                    onChange={(e) => setWorksheetType(e.target.value)}
+                >
+                    <option value="Topics1">Topics1</option>
+                    <option value="Topics2">Topics2</option>
+                    <option value="Topics3">Topics3</option>
                 </select>
-                <select name="Skills" className="QuestionInterfaceSelctor" id="Skills">
-                    <option value={1}>SKILL1</option>
-                    <option value={2}>SKILL2</option>
-                    <option value={3}>SKILL3</option>
+                <select
+                    name="Skills"
+                    className="QuestionInterfaceSelctor"
+                    id="Skills"
+                    onChange={(e) => setWorksheetType(e.target.value)}
+                >
+                    <option value="SKILL1">SKILL1</option>
+                    <option value="SKILL2">SKILL2</option>
+                    <option value="SKILL3">SKILL3</option>
                 </select>
-                <select name="Type" className="QuestionInterfaceSelctor">
-                    <option value={1}>TYPE</option>
-                    <option value={2}>B</option>
-                    <option value={3}>Other</option>
+                <select
+                    name="Type"
+                    className="QuestionInterfaceSelctor"
+                    onChange={(e) => setWorksheetType(e.target.value)}
+                >
+                    <option value="TYPE">TYPE</option>
+                    <option value="B">B</option>
+                    <option value="Other">Other</option>
                 </select>
             </div>
 
@@ -140,7 +164,7 @@ const QuestionInterface = () => {
                             }}
                         />
                         <button
-                            className="QuestionInteface"
+                            class="custom-btn RedButton"
                             id="RedColor"
                             onClick={() => removeQuestion(question.id)}
                         >
@@ -150,30 +174,40 @@ const QuestionInterface = () => {
                 ))}
             </div>
 
-            <button type="button" className="QuestionInteface" id="AddQuestionInterface" onClick={() => setVisible(true)}>Add Question</button>
+            <button type="button" class="custom-btn GreenButton" id="AddQuestionInterface" onClick={() => setVisible(true)}>Add Question</button>
 
-            <ReactModal isOpen={visible} onRequestClose={() => setVisible(false)}>
-                <div className="popupAddQuestion-context">
-                    <label htmlFor="Number1">Number1:</label>
+            <ReactModal style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100vh',
+                width: '100vw',
+            }} className="PopUpReactModelName" isOpen={visible} onRequestClose={() => setVisible(false)} ariaHideApp={false}>
+                <div class='modal-container'>
+                    <div class='modal'>
+                    <div className="container">
+                        <label className="TextBoxlabel" htmlFor="Number1">Number1:</label>
+                        <input
+                            className="TextBoxinput"
+                            type="text"
+                            id="Number1"
+                            value={number1}
+                            onChange={(e) => setNumber1(e.target.value)}
+                        /></div >
+                    <div className="container">
+                    <label className="TextBoxlabel" htmlFor="Number2">Number2:</label>
                     <input
-                        type="text"
-                        id="Number1"
-                        value={number1}
-                        onChange={(e) => setNumber1(e.target.value)}
-                    /><br /><br />
-
-                    <label htmlFor="Number2">Number2:</label>
-                    <input
+                        className="TextBoxinput"
                         type="text"
                         id="Number2"
                         value={number2}
                         onChange={(e) => setNumber2(e.target.value)}
-                    /><br /><br />
-
-                    <label htmlFor="Operation">Operation:</label>
+                            /></div >
+                        <div className="container">
+                    <label className="TextBoxlabel" htmlFor="Operation">Operation:</label>
                     <select
-                        id="QuestionInterfaceSelctorOperation"
-                        className="QuestionInterfaceSelctor"
+                            className="TextBoxSelect"
+
                         value={operation}
                         onChange={(e) => setOperation(e.target.value)}
                     >
@@ -181,30 +215,32 @@ const QuestionInterface = () => {
                         <option value="-">Subtraction</option>
                         <option value="/">Division</option>
                         <option value="*">Multiplication</option>
-                    </select><br /><br />
-
-                    <label htmlFor="Sct">Time For Question (seconds):</label>
-                    <input
+                    </select>
+                        </div>
+                        <label className="TextBoxlabel" htmlFor="Sct">Time For Question (seconds):</label>
+                        <input
+                            className="TextBoxinput"
                         type="text"
                         id="Sct"
                         value={sct}
                         onChange={(e) => setSct(e.target.value)}
-                    /><br /><br />
+                    />
 
                     <button
                         onClick={handleAddQuestion}
                         id="SaveAddingNewQuestion"
-                        className="QuestionInteface"
+                            class="custom-btn GreenButton"
                     >
-                        Add Question
+                        Add
                     </button>
                     <button
                         onClick={handleCancel}
-                        className="QuestionInteface"
+                            class="custom-btn BlueButton"
                         id="cancel"
                     >
                         Cancel
-                    </button>
+                        </button>
+                    </div>
                 </div>
             </ReactModal>
         </div>

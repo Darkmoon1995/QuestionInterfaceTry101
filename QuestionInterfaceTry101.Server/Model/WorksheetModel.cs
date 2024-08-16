@@ -10,9 +10,16 @@ namespace QuestionInterfaceTry101.Server.Model
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int WorksheetId { get; set; }
+
+        [Required]
         public int SkillId { get; set; }
+
+        [Required]
         public int Number { get; set; }
+
+        [Required]
         public int Level { get; set; }
+
         public TitleModel Title { get; set; } = new TitleModel();
         public FinalMessageModel FinalMessage { get; set; } = new FinalMessageModel();
         public string? WorksheetType { get; set; }
@@ -43,7 +50,9 @@ namespace QuestionInterfaceTry101.Server.Model
     public class qusModel
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Order { get; set; }
+
         public TitleModel Title { get; set; } = new TitleModel();
         public SettingsModel Settings { get; set; } = new SettingsModel();
         public int NumberOfOptions { get; set; }

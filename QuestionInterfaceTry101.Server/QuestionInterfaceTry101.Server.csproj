@@ -34,9 +34,4 @@
 		</ProjectReference>
 	</ItemGroup>
 
-	<ItemGroup>
-		<Folder Include="Migrations\" />
-		<Folder Include="Model\" />
-	</ItemGroup>
-
 </Project>

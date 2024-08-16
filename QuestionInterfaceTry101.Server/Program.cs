@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using QuestionInterfaceTry101.Server.Data;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Cors;
+
 
 namespace QuestionInterfaceTry101.Server
 {
@@ -19,13 +21,28 @@ namespace QuestionInterfaceTry101.Server
             builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddAuthorization();
 
+
+            // Add CORS configuration
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder => builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+            });
+
+            // Add services to the container.
+            builder.Services.AddControllersWithViews();
+
             var app = builder.Build();
+
+            // Configure the HTTP request pipeline.
+            app.UseCors("CorsPolicy");
 
             app.UseDefaultFiles();
             app.UseStaticFiles();

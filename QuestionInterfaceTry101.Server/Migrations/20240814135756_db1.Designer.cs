@@ -12,7 +12,7 @@ using QuestionInterfaceTry101.Server.Data;
 namespace QuestionInterfaceTry101.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240813112337_db1")]
+    [Migration("20240814135756_db1")]
     partial class db1
     {
         /// <inheritdoc />

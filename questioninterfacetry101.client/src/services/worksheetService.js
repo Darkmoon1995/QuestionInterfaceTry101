@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5173/api/worksheet';
+const API_URL = 'http://localhost:7226/api/worksheet';
 
 export const getWorksheets = async () => {
     try {
