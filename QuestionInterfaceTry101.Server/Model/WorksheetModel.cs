@@ -50,7 +50,6 @@ namespace QuestionInterfaceTry101.Server.Model
     public class qusModel
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Order { get; set; }
 
         public TitleModel Title { get; set; } = new TitleModel();

@@ -1,13 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const CustomButton = ({ value1, value2, value3, onClick }) => {
+const CustomButton = ({ className, value1, value2, value3, onClick }) => {
     return (
         <div className="inner">
             <button
                 type="button"
-                id="backgroundcolor3"
-                className="MainButtonMenu"
+                className={className} 
                 onClick={() => onClick(value3)}
             >
                 <span className="aboveText" style={{ fontSize: '1.6rem' }}>{value1}</span>
@@ -19,6 +18,7 @@ const CustomButton = ({ value1, value2, value3, onClick }) => {
 };
 
 CustomButton.propTypes = {
+    className: PropTypes.string,  
     value1: PropTypes.string.isRequired,
     value2: PropTypes.string.isRequired,
     value3: PropTypes.string.isRequired,

@@ -1,14 +1,34 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import CustomButton from '../Components/CustomButton.jsx';
+import '../Css/MainButtonForSubjects.css';
+import '../Css/WierdDivCss.css';
 
-import CustomButton from "../Components/CustomButton.jsx"
 
-function Home() {
+function Subject() {
+    const navigate = useNavigate();
+
+    const handleButtonClick = (path) => {
+        let url = '';
+
+        if (path === 'WorksheetList') {
+            url = '/Grade/Subject/WorksheetList';
+        } else {
+            url = `/${path}`;
+        }
+
+        navigate(url);
+    };
+
     return (
-        <div className="button-container">
-            <CustomButton value1="Math" value2="100Questions" value3="home" />
-            <CustomButton value1="Science" value2="100Questions" value3="subject" />
-            <CustomButton value1="Geography" value2="100Questions" value3="contact" />
+        <div className="BigWhiteBox">
+
+            <CustomButton className="MainButtonMenu btncolor1" value1="Math" value2="DID NOT DO IT" value3="WorksheetList" onClick={handleButtonClick} />
+            <CustomButton className="MainButtonMenu btncolor2" value1="Science" value2="DID NOT DO IT" value3="WorksheetList" onClick={handleButtonClick} />
+            <CustomButton className="MainButtonMenu btncolor3" value1="Art" value2="DID NOT DO IT" value3="WorksheetList" onClick={handleButtonClick} />
+
         </div>
     );
 }
 
-export default Home;
+export default Subject;

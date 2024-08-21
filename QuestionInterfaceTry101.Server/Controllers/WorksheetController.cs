@@ -64,10 +64,28 @@ namespace QuestionInterfaceTry101.Server.Controllers
         {
             if (id != worksheet.WorksheetId)
             {
-                return BadRequest();
+                return BadRequest("Worksheet ID mismatch.");
             }
 
-            _context.Entry(worksheet).State = EntityState.Modified;
+            // Ensure the worksheet is being tracked by the context
+            var existingWorksheet = await _context.Worksheets
+                                                  .Include(w => w.qus)
+                                                  .FirstOrDefaultAsync(w => w.WorksheetId == id);
+            if (existingWorksheet == null)
+            {
+                return NotFound("Worksheet not found.");
+            }
+
+            // Update properties of the existing worksheet
+            _context.Entry(existingWorksheet).CurrentValues.SetValues(worksheet);
+
+            // Update related qus entities
+            existingWorksheet.qus.Clear();
+            foreach (var qus in worksheet.qus)
+            {
+                qus.Order = 0; // or assign correct order value if needed
+                existingWorksheet.qus.Add(qus);
+            }
 
             try
             {
@@ -91,17 +109,32 @@ namespace QuestionInterfaceTry101.Server.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteWorksheet(int id)
         {
-            var worksheet = await _context.Worksheets.FindAsync(id);
+            var worksheet = await _context.Worksheets
+                .Include(w => w.qus)
+                .FirstOrDefaultAsync(w => w.WorksheetId == id);
+
             if (worksheet == null)
             {
                 return NotFound();
             }
 
+            // Manually delete related questions
+            _context.qus.RemoveRange(worksheet.qus);
             _context.Worksheets.Remove(worksheet);
-            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                Console.WriteLine(ex.InnerException?.Message ?? ex.Message);
+                return StatusCode(500, "An error occurred while deleting the worksheet.");
+            }
 
             return NoContent();
         }
+
 
         private bool WorksheetExists(int id)
         {

@@ -1,0 +1,22 @@
+.MainButtonMenu {
+    box-shadow: 4px 4px;
+    width: 7cm;
+    height: 7cm;
+    overflow: hidden;
+    margin-right: 0.5cm;
+    border-radius: 12px;
+    margin-bottom: 0.5cm;
+    border: 1px solid #ccc;
+    transition: box-shadow 0.3s ease;
+}
+.btncolor1 {
+    background-color: rgb(172, 180, 248) !important;
+}
+
+.btncolor2 {
+    background-color: rgb(162, 254, 237) !important;
+}
+
+.btncolor3 {
+    background-color: rgb(204, 71, 207) !important;
+}

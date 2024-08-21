@@ -18,22 +18,23 @@ namespace QuestionInterfaceTry101.Server.Data
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<WorksheetModel>().OwnsOne(w => w.Title, t =>
-            {
-                t.OwnsOne(tt => tt.Config);
-            });
-            builder.Entity<WorksheetModel>().OwnsOne(w => w.FinalMessage, f =>
-            {
-                f.OwnsOne(ff => ff.Config);
-            });
+            builder.Entity<WorksheetModel>()
+                   .OwnsOne(w => w.Title, t => { t.OwnsOne(tt => tt.Config); });
+            builder.Entity<WorksheetModel>()
+                   .OwnsOne(w => w.FinalMessage, f => { f.OwnsOne(ff => ff.Config); });
 
-            builder.Entity<qusModel>().OwnsOne(q => q.Title, t =>
-            {
-                t.OwnsOne(tt => tt.Config);
-            });
-            builder.Entity<qusModel>().OwnsOne(q => q.Settings);
+            builder.Entity<qusModel>()
+                   .OwnsOne(q => q.Title, t => { t.OwnsOne(tt => tt.Config); });
+            builder.Entity<qusModel>()
+                   .OwnsOne(q => q.Settings);
+
+            builder.Entity<WorksheetModel>()
+                   .HasMany(w => w.qus)
+                   .WithOne() 
+                   .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<qusModel>().ToTable("qus");
         }
+
     }
 }
