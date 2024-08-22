@@ -182,8 +182,9 @@ namespace QuestionInterfaceTry101.Server.Migrations
                 name: "qus",
                 columns: table => new
                 {
-                    Order = table.Column<int>(type: "int", nullable: false)
+                    id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    Order = table.Column<int>(type: "int", nullable: false),
                     Title_Text = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Title_Config_Style = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Title_Config_Styledegree = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -196,12 +197,13 @@ namespace QuestionInterfaceTry101.Server.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_qus", x => x.Order);
+                    table.PrimaryKey("PK_qus", x => x.id);
                     table.ForeignKey(
                         name: "FK_qus_Worksheets_WorksheetModelWorksheetId",
                         column: x => x.WorksheetModelWorksheetId,
                         principalTable: "Worksheets",
-                        principalColumn: "WorksheetId");
+                        principalColumn: "WorksheetId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(

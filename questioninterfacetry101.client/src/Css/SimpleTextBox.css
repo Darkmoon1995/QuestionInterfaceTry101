@@ -1,5 +1,5 @@
 .TextBoxlabel {
-    background: #E03616;
+    background: rgb(180 225 224);
     padding: 10px;
     border-radius: 3px 0 0 3px;
     margin-top: 1%;
@@ -58,4 +58,19 @@
 .GreenButton {
     background: green;
     border: none;
+}
+.YellowButton {
+    background: Yellow;
+    border: none;
+    color: black;
+}
+.EditButton {
+    background: rgb(200 185 225);
+    border: none;
+    color: black;
+}
+.RemoveQuestionButton {
+    background: rgb(200 185 225);
+    border: none;
+    color: black;
 }

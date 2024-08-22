@@ -74,7 +74,16 @@ const QuestionInterface = () => {
         if (editMode) {
             setQuestions(questions.map(q =>
                 q.id === currentQuestionId
-                    ? { ...q, number1, number2, sct, operation, title: questionTitle }
+                    ? {
+                        ...q,
+                        number1,
+                        number2,
+                        sct,
+                        operation,
+                        title: questionTitle,
+                        TitleStyle: questionTitleStyle,  
+                        TitleStyleDegree: questionTitleStyleDegree
+                    }
                     : q
             ));
         } else {
@@ -84,11 +93,12 @@ const QuestionInterface = () => {
                 number2,
                 sct,
                 operation,
-                title: questionTitle
+                title: questionTitle,
+                TitleStyle: questionTitleStyle,  
+                TitleStyleDegree: questionTitleStyleDegree
             };
             setQuestions([...questions, newQuestion]);
         }
-        // Reset the form and state after adding/updating a question
         setEditMode(false);
         setCurrentQuestionId(null);
         setNumber1('');
@@ -222,23 +232,28 @@ const QuestionInterface = () => {
             <br />
             <h3>Questions</h3>
             <hr />
-
-            <div id="MainQuestionDivName">
+            
+            <div className="WhiteBox">
                 {questions.map(question => (
+                    
                     <div key={question.id} className="accordion-item">
+                        <div className="QuestionBlackBoarder">
                         <div className="accordion-header">
                             <p className="p1BorderBlack">{question.id}. {question.title}</p>
-                            <p>{question.number1} {question.operation} {question.number2} = ?</p>
-                            <p>SCT: {question.sct}</p>
+                            <p>{question.number1} {question.operation} {question.number2}</p>
+                                <p>SCT: {question.sct}</p>
+                                    <p>Question Style: {question.TitleStyle}</p>
+                                    <p>Style Degree: {question.TitleStyleDegree}</p>
                         </div>
                         <div className="accordion-actions">
-                            <button className="custom-btn YellowButton" onClick={() => handleEditQuestion(question.id)}>Edit</button>
-                            <button className="custom-btn RedButton" onClick={() => removeQuestion(question.id)}>Remove</button>
+                                <button className="custom-btn EditButton" onClick={() => handleEditQuestion(question.id)}>Edit</button>
+                                <button className="custom-btn RemoveQuestionButton" onClick={() => removeQuestion(question.id)}>Remove</button>
+                        </div>
                         </div>
                     </div>
                 ))}
             </div>
-
+            
             <p>
                 <button className="custom-btn BlueButton" id="AddQuestion" onClick={() => setIsVisible(true)}>Add Question</button>
             </p>
@@ -247,9 +262,8 @@ const QuestionInterface = () => {
                 isOpen={isVisible}
                 onRequestClose={handleCancel}
                 className="Modal"
-                overlayClassName="Overlay"
-                ariaHideApp={false}
             >
+                <div className="WhiteBox">
                 <div className="container">
                     <label className="TextBoxlabel" htmlFor="QuestionTitle">Question Title:</label>
                     <input
@@ -338,7 +352,8 @@ const QuestionInterface = () => {
                 <p>
                     <button className="custom-btn BlueButton" onClick={handleAddQuestion}>Save</button>
                     <button className="custom-btn RedButton" onClick={handleCancel}>Cancel</button>
-                </p>
+                    </p>
+                </div>
             </ReactModal>
         </div>
     );

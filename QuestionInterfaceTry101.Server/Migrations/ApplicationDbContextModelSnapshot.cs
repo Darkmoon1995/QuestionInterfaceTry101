@@ -247,13 +247,16 @@ namespace QuestionInterfaceTry101.Server.Migrations
 
             modelBuilder.Entity("QuestionInterfaceTry101.Server.Model.qusModel", b =>
                 {
-                    b.Property<int>("Order")
+                    b.Property<int>("id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Order"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
                     b.Property<int>("NumberOfOptions")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Order")
                         .HasColumnType("int");
 
                     b.Property<int>("Sct")
@@ -262,7 +265,7 @@ namespace QuestionInterfaceTry101.Server.Migrations
                     b.Property<int?>("WorksheetModelWorksheetId")
                         .HasColumnType("int");
 
-                    b.HasKey("Order");
+                    b.HasKey("id");
 
                     b.HasIndex("WorksheetModelWorksheetId");
 
@@ -409,11 +412,12 @@ namespace QuestionInterfaceTry101.Server.Migrations
                 {
                     b.HasOne("QuestionInterfaceTry101.Server.Model.WorksheetModel", null)
                         .WithMany("qus")
-                        .HasForeignKey("WorksheetModelWorksheetId");
+                        .HasForeignKey("WorksheetModelWorksheetId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.OwnsOne("QuestionInterfaceTry101.Server.Model.SettingsModel", "Settings", b1 =>
                         {
-                            b1.Property<int>("qusModelOrder")
+                            b1.Property<int>("qusModelid")
                                 .HasColumnType("int");
 
                             b1.Property<int>("Number1")
@@ -425,32 +429,32 @@ namespace QuestionInterfaceTry101.Server.Migrations
                             b1.Property<string>("Operation")
                                 .HasColumnType("nvarchar(max)");
 
-                            b1.HasKey("qusModelOrder");
+                            b1.HasKey("qusModelid");
 
                             b1.ToTable("qus");
 
                             b1.WithOwner()
-                                .HasForeignKey("qusModelOrder");
+                                .HasForeignKey("qusModelid");
                         });
 
                     b.OwnsOne("QuestionInterfaceTry101.Server.Model.TitleModel", "Title", b1 =>
                         {
-                            b1.Property<int>("qusModelOrder")
+                            b1.Property<int>("qusModelid")
                                 .HasColumnType("int");
 
                             b1.Property<string>("Text")
                                 .HasColumnType("nvarchar(max)");
 
-                            b1.HasKey("qusModelOrder");
+                            b1.HasKey("qusModelid");
 
                             b1.ToTable("qus");
 
                             b1.WithOwner()
-                                .HasForeignKey("qusModelOrder");
+                                .HasForeignKey("qusModelid");
 
                             b1.OwnsOne("QuestionInterfaceTry101.Server.Model.ConfigModel", "Config", b2 =>
                                 {
-                                    b2.Property<int>("TitleModelqusModelOrder")
+                                    b2.Property<int>("TitleModelqusModelid")
                                         .HasColumnType("int");
 
                                     b2.Property<string>("Style")
@@ -459,12 +463,12 @@ namespace QuestionInterfaceTry101.Server.Migrations
                                     b2.Property<string>("Styledegree")
                                         .HasColumnType("nvarchar(max)");
 
-                                    b2.HasKey("TitleModelqusModelOrder");
+                                    b2.HasKey("TitleModelqusModelid");
 
                                     b2.ToTable("qus");
 
                                     b2.WithOwner()
-                                        .HasForeignKey("TitleModelqusModelOrder");
+                                        .HasForeignKey("TitleModelqusModelid");
                                 });
 
                             b1.Navigation("Config")

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Numerics;
+using System.Text.Json.Serialization;
 
 namespace QuestionInterfaceTry101.Server.Model
 {
@@ -50,6 +52,8 @@ namespace QuestionInterfaceTry101.Server.Model
     public class qusModel
     {
         [Key]
+        [JsonIgnore]
+        public int id { get; set; }
         public int Order { get; set; }
 
         public TitleModel Title { get; set; } = new TitleModel();

@@ -1,3 +1,6 @@
+* {
+
+}
 .container {
     display: flex;
     flex-direction: row;
@@ -29,4 +32,15 @@
 }
 .SameHeight{
     height: 50%;
+}
+.QuestionBlackBoarder {
+    border-block-color: black;
+    border-style: double;
+    margin: 2px;
+    padding: 2px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
 }

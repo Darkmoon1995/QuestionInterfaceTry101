@@ -71,7 +71,8 @@ const WorksheetDetails = () => {
             )
             : [...worksheet.qus, newQuestion];
 
-        setWorksheet({ ...worksheet, qus: updatedQuestions });
+        // Spread operator ensures a new object is created, triggering a re-render.
+        setWorksheet({ ...worksheet, qus: [...updatedQuestions] });
         clearModalState();
     };
 
@@ -93,10 +94,9 @@ const WorksheetDetails = () => {
     };
 
     const removeQuestion = (order) => {
-        setWorksheet({
-            ...worksheet,
-            qus: worksheet.qus.filter((q) => q.order !== order),
-        });
+        // Create a new array to avoid mutating the original state.
+        const updatedQuestions = worksheet.qus.filter((q) => q.order !== order);
+        setWorksheet({ ...worksheet, qus: [...updatedQuestions] });
     };
 
     const handleSaveAll = async () => {
@@ -154,137 +154,142 @@ const WorksheetDetails = () => {
     return (
         <div>
             <div className="SameHeight">
-                <h1> Worksheet ID : {worksheetId}</h1>
-            <div className="container">
-                <label className="TextBoxlabel" htmlFor="Title">Title:</label>
-                <input
-                    type="text"
-                    className="TextBoxinput"
-                    id="Title"
-                    value={worksheetTitle}
-                    onChange={(e) => setWorksheetTitle(e.target.value)}
-                />
-            </div>
-            <div className="container">
-                <label className="TextBoxlabel" htmlFor="FinalMessage">Final Message:</label>
-                <input
-                    type="text"
-                    className="TextBoxinput"
-                    id="FinalMessage"
-                    value={worksheetFinalMessage}
-                    onChange={(e) => setWorksheetFinalMessage(e.target.value)}
-                />
+                <h3> Worksheet ID : {worksheetId}</h3>
+                <button type="button" className="custom-btn BlueButton" onClick={handleSaveAll}>Save All</button>
+                <button type="button" className="custom-btn RedButton" onClick={handleRemoveWorksheet}>Remove All</button>
+                <div className="container">
+                    <label className="TextBoxlabel" htmlFor="Title">Title:</label>
+                    <input
+                        type="text"
+                        className="TextBoxinput"
+                        id="Title"
+                        value={worksheetTitle}
+                        onChange={(e) => setWorksheetTitle(e.target.value)}
+                    />
+                </div>
+                <div className="container">
+                    <label className="TextBoxlabel" htmlFor="FinalMessage">Final Message:</label>
+                    <input
+                        type="text"
+                        className="TextBoxinput"
+                        id="FinalMessage"
+                        value={worksheetFinalMessage}
+                        onChange={(e) => setWorksheetFinalMessage(e.target.value)}
+                    />
                 </div>
 
-            <div className="container">
-                <label className="TextBoxlabel" htmlFor="WorksheetType">Worksheet Type:</label>
-                <select
-                    name="WorksheetType"
-                    className="TextBoxSelect"
-                    id="WorksheetType"
-                    value={worksheetType}
-                    onChange={(e) => setWorksheetType(e.target.value)}
-                >
-                    <option value="Topics1">Topics1</option>
-                    <option value="Topics2">Topics2</option>
-                    <option value="Topics3">Topics3</option>
-                </select>
-            </div>
+                <div className="container">
+                    <label className="TextBoxlabel" htmlFor="WorksheetType">Worksheet Type:</label>
+                    <select
+                        name="WorksheetType"
+                        className="TextBoxSelect"
+                        id="WorksheetType"
+                        value={worksheetType}
+                        onChange={(e) => setWorksheetType(e.target.value)}
+                    >
+                        <option value="Topics1">Topics1</option>
+                        <option value="Topics2">Topics2</option>
+                        <option value="Topics3">Topics3</option>
+                    </select>
+                </div>
 
-            <div className="container">
-                <label className="TextBoxlabel" htmlFor="TextStyle">Text Style:</label>
-                <select
-                    className="TextBoxSelect"
-                    id="TextStyle"
-                    value={textStyle}
-                    onChange={(e) => setTextStyle(e.target.value)}
-                >
-                    <option value="friendly">Friendly</option>
-                    <option value="formal">Formal</option>
-                    <option value="excited">Excited</option>
-                </select>
+                <div className="container">
+                    <label className="TextBoxlabel" htmlFor="TextStyle">Text Style:</label>
+                    <select
+                        className="TextBoxSelect"
+                        id="TextStyle"
+                        value={textStyle}
+                        onChange={(e) => setTextStyle(e.target.value)}
+                    >
+                        <option value="friendly">Friendly</option>
+                        <option value="formal">Formal</option>
+                        <option value="excited">Excited</option>
+                    </select>
 
-                <label className="TextBoxlabel" htmlFor="TextStyleDegree">Style Degree:</label>
-                <select
-                    className="TextBoxSelect"
-                    id="TextStyleDegree"
-                    value={textStyleDegree}
-                    onChange={(e) => setTextStyleDegree(e.target.value)}
-                >
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                </select>
-            </div>
+                    <label className="TextBoxlabel" htmlFor="TextStyleDegree">Style Degree:</label>
+                    <select
+                        className="TextBoxSelect"
+                        id="TextStyleDegree"
+                        value={textStyleDegree}
+                        onChange={(e) => setTextStyleDegree(e.target.value)}
+                    >
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
+                </div>
 
-            <div className="container">
-                <label className="TextBoxlabel" htmlFor="FinalMessageStyle">Final Message Style:</label>
-                <select
-                    className="TextBoxSelect"
-                    id="FinalMessageStyle"
-                    value={finalMessageStyle}
-                    onChange={(e) => setFinalMessageStyle(e.target.value)}
-                >
-                    <option value="excited">Excited</option>
-                    <option value="motivational">Motivational</option>
-                    <option value="calm">Calm</option>
-                </select>
+                <div className="container">
+                    <label className="TextBoxlabel" htmlFor="FinalMessageStyle">Final Message Style:</label>
+                    <select
+                        className="TextBoxSelect"
+                        id="FinalMessageStyle"
+                        value={finalMessageStyle}
+                        onChange={(e) => setFinalMessageStyle(e.target.value)}
+                    >
+                        <option value="excited">Excited</option>
+                        <option value="motivational">Motivational</option>
+                        <option value="calm">Calm</option>
+                    </select>
 
-                <label className="TextBoxlabel" htmlFor="FinalMessageStyleDegree">Style Degree:</label>
-                <select
-                    className="TextBoxSelect"
-                    id="FinalMessageStyleDegree"
-                    value={finalMessageStyleDegree}
-                    onChange={(e) => setFinalMessageStyleDegree(e.target.value)}
-                >
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                </select>
-            </div>
+                    <label className="TextBoxlabel" htmlFor="FinalMessageStyleDegree">Style Degree:</label>
+                    <select
+                        className="TextBoxSelect"
+                        id="FinalMessageStyleDegree"
+                        value={finalMessageStyleDegree}
+                        onChange={(e) => setFinalMessageStyleDegree(e.target.value)}
+                    >
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
+                </div>
             </div>
             <br />
             <h3>Questions</h3>
             <hr />
 
-            <div id="MainQuestionDivName">
+            <div className="WhiteBox">
                 {worksheet.qus.map((question) => (
-                    <div key={question.order} className="number-box">
-                        <p className="p1BorderBlack">{question.order}</p>
-                        <p className="p1BorderBlack">{question.settings.number1} {question.settings.operation} {question.settings.number2}</p>
-                        <p className="p1BorderBlack">Degree: {question.settings.degree}</p>
-                        <p className="p1BorderBlack">In {question.sct} Seconds</p>
-                        <img
-                            src="/gif/icons8-settings.gif"
-                            id="SmallerImage"
-                            alt="Edit"
-                            onClick={() => {
-                                setNumber1(question.settings.number1);
-                                setNumber2(question.settings.number2);
-                                setSct(question.sct);
-                                setOperation(question.settings.operation);
-                                setDegree(question.settings.degree);
-                                setQuestionTitle(question.title.text);
-                                setQuestionTitleStyle(question.title.config.style);
-                                setQuestionTitleStyleDegree(question.title.config.styledegree);
-                                setEditingQuestion(question.order);
-                                setVisible(true);
-                            }}
-                        />
-                        <button
-                            className="custom-btn RedButton"
-                            id="RedColor"
-                            onClick={() => removeQuestion(question.order)}
-                        >
-                            Remove
-                        </button>
+                    <div key={question.order} className="QuestionBlackBoarder">
+                        <div className="accordion-header">
+                            <p className="p1BorderBlack">{question.order}</p>
+                            <p className="p1BorderBlack">{question.settings.number1} {question.settings.operation} {question.settings.number2}</p>
+                            <p className="p1BorderBlack">SCT: {question.sct} </p>
+                            <p>Question Style: {question.title.config.style}</p>
+                            <p className="p1BorderBlack">Style Degree: {question.settings.degree}</p>
+                        </div>
+                        <div className="accordion-actions">
+
+                            <button
+                                alt="Edit"
+                                className="custom-btn EditButton"
+                                onClick={() => {
+                                    setNumber1(question.settings.number1);
+                                    setNumber2(question.settings.number2);
+                                    setSct(question.sct);
+                                    setOperation(question.settings.operation);
+                                    setDegree(question.settings.degree);
+                                    setQuestionTitle(question.title.text);
+                                    setQuestionTitleStyle(question.title.config.style);
+                                    setQuestionTitleStyleDegree(question.title.config.styledegree);
+                                    setEditingQuestion(question.order);
+                                    setVisible(true);
+                                }}
+                            >Edit</button>
+                            <button
+                                className="custom-btn RemoveQuestionButton"
+                                id="RedColor"
+                                onClick={() => removeQuestion(question.order)}
+                            >
+                                Remove
+                            </button>
+                        </div>
                     </div>
                 ))}
             </div>
 
             <button type="button" className="custom-btn GreenButton" id="AddQuestionInterface" onClick={() => setVisible(true)}>Add Question</button>
-            <button type="button" className="custom-btn BlueButton" onClick={handleSaveAll}>Save</button>
-            <button type="button" className="custom-btn RedButton" onClick={handleRemoveWorksheet}>Remove Worksheet</button>
 
             <ReactModal
                 style={{
@@ -353,20 +358,6 @@ const WorksheetDetails = () => {
                         </div>
 
                         <div className="container">
-                            <label className="TextBoxlabel" htmlFor="Degree">Degree:</label>
-                            <select
-                                className="TextBoxSelect"
-                                id="Degree"
-                                value={degree}
-                                onChange={(e) => setDegree(e.target.value)}
-                            >
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                            </select>
-                        </div>
-
-                        <div className="container">
                             <label className="TextBoxlabel" htmlFor="Sct">Time For Question (seconds):</label>
                             <input
                                 className="TextBoxinput"
@@ -404,25 +395,26 @@ const WorksheetDetails = () => {
                         </div>
 
                         <div className="button-container">
-                            <button
-                                onClick={handleAddQuestion}
-                                className="custom-btn GreenButton"
-                                id="SaveAddingNewQuestion"
-                            >
-                                {editingQuestion !== null ? 'Save Changes' : 'Add'}
-                            </button>
-                            <button
-                                onClick={handleCancel}
-                                className="custom-btn BlueButton"
-                                id="cancel"
-                            >
-                                Cancel
-                            </button>
+                            <p>
+                                <button
+                                    onClick={handleAddQuestion}
+                                    className="custom-btn GreenButton"
+                                    id="SaveAddingNewQuestion"
+                                >
+                                    {editingQuestion !== null ? 'Save' : 'Add'}
+                                </button>
+                                <button
+                                    onClick={handleCancel}
+                                    className="custom-btn BlueButton"
+                                    id="cancel"
+                                >
+                                    Cancel
+                                </button>
+                            </p>
                         </div>
                     </div>
                 </div>
             </ReactModal>
-
         </div>
     );
 };
