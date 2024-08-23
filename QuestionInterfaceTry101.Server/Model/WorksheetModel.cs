@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using QuestionInterfaceTry101.Server.Data;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -26,6 +27,12 @@ namespace QuestionInterfaceTry101.Server.Model
         public FinalMessageModel FinalMessage { get; set; } = new FinalMessageModel();
         public string? WorksheetType { get; set; }
         public List<qusModel> qus { get; set; } = new List<qusModel>();
+
+        // Reference to the ApplicationUser
+        [ForeignKey("ApplicationUserId")]
+        [JsonIgnore]
+        public ApplicationUser? User { get; set; }
+        public string? ApplicationUserId { get; set; }
     }
 
     [Owned]

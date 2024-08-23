@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 using QuestionInterfaceTry101.Server.Data;
 using QuestionInterfaceTry101.Server.Model;
 using System.Collections.Generic;
@@ -12,23 +14,31 @@ namespace QuestionInterfaceTry101.Server.Controllers
     public class WorksheetController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public WorksheetController(ApplicationDbContext context)
+        public WorksheetController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WorksheetModel>>> GetWorksheets()
         {
-            return await _context.Worksheets.Include(w => w.qus).ToListAsync();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return await _context.Worksheets
+                                 .Where(w => w.ApplicationUserId == userId)
+                                 .Include(w => w.qus)
+                                 .ToListAsync();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<WorksheetModel>> GetWorksheet(int id)
         {
-            var worksheet = await _context.Worksheets.Include(w => w.qus)
-                                                     .FirstOrDefaultAsync(w => w.WorksheetId == id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var worksheet = await _context.Worksheets
+                                          .Include(w => w.qus)
+                                          .FirstOrDefaultAsync(w => w.WorksheetId == id && w.ApplicationUserId == userId);
 
             if (worksheet == null)
             {
@@ -37,18 +47,22 @@ namespace QuestionInterfaceTry101.Server.Controllers
 
             return worksheet;
         }
+
         [HttpPost]
         public async Task<ActionResult<WorksheetModel>> PostWorksheet(WorksheetModel worksheet)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            worksheet.ApplicationUserId = userId;
+
             if (worksheet == null)
             {
                 return BadRequest("Worksheet is null.");
             }
 
-            int orderCounter = 1;  // Initialize the order counter
+            int orderCounter = 1;
             foreach (var qus in worksheet.qus)
             {
-                qus.Order = orderCounter++;  // Increment the order for each question starting from 1
+                qus.Order = orderCounter++;
             }
 
             _context.Worksheets.Add(worksheet);
@@ -57,43 +71,42 @@ namespace QuestionInterfaceTry101.Server.Controllers
             return CreatedAtAction(nameof(GetWorksheet), new { id = worksheet.WorksheetId }, worksheet);
         }
 
-
         [HttpPut("{id}")]
         public async Task<IActionResult> PutWorksheet(int id, WorksheetModel worksheet)
         {
-            if (id != worksheet.WorksheetId)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
             {
-                return BadRequest("Worksheet ID mismatch.");
+                return Unauthorized();
+            }
+            if (id != worksheet.WorksheetId || worksheet.ApplicationUserId != userId)
+            {
+                return BadRequest("Worksheet ID mismatch or unauthorized.");
             }
 
             var existingWorksheet = await _context.Worksheets
                                                   .Include(w => w.qus)
-                                                  .FirstOrDefaultAsync(w => w.WorksheetId == id);
+                                                  .FirstOrDefaultAsync(w => w.WorksheetId == id && w.ApplicationUserId == userId);
             if (existingWorksheet == null)
             {
                 return NotFound("Worksheet not found.");
             }
 
-            // Update the title and other properties
             existingWorksheet.Title.Text = worksheet.Title.Text;
             existingWorksheet.Title.Config.Style = worksheet.Title.Config.Style;
             existingWorksheet.Title.Config.Styledegree = worksheet.Title.Config.Styledegree;
 
-            // Update the final message in the same way
             existingWorksheet.FinalMessage.Text = worksheet.FinalMessage.Text;
             existingWorksheet.FinalMessage.Config.Style = worksheet.FinalMessage.Config.Style;
             existingWorksheet.FinalMessage.Config.Styledegree = worksheet.FinalMessage.Config.Styledegree;
 
-            // Update other properties of the worksheet
             existingWorksheet.WorksheetType = worksheet.WorksheetType;
 
-            // Handle the questions
             existingWorksheet.qus.Clear();
-
-            int orderCounter = 1;  
+            int orderCounter = 1;
             foreach (var qus in worksheet.qus)
             {
-                qus.Order = orderCounter++;  
+                qus.Order = orderCounter++;
                 existingWorksheet.qus.Add(qus);
             }
 
@@ -103,7 +116,7 @@ namespace QuestionInterfaceTry101.Server.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!WorksheetExists(id))
+                if (!WorksheetExists(id, userId))
                 {
                     return NotFound();
                 }
@@ -116,21 +129,19 @@ namespace QuestionInterfaceTry101.Server.Controllers
             return NoContent();
         }
 
-
-
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteWorksheet(int id)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var worksheet = await _context.Worksheets
                 .Include(w => w.qus)
-                .FirstOrDefaultAsync(w => w.WorksheetId == id);
+                .FirstOrDefaultAsync(w => w.WorksheetId == id && w.ApplicationUserId == userId);
 
             if (worksheet == null)
             {
                 return NotFound();
             }
 
-            // Manually delete related questions
             _context.qus.RemoveRange(worksheet.qus);
             _context.Worksheets.Remove(worksheet);
 
@@ -147,10 +158,9 @@ namespace QuestionInterfaceTry101.Server.Controllers
             return NoContent();
         }
 
-
-        private bool WorksheetExists(int id)
+        private bool WorksheetExists(int id, string userId)
         {
-            return _context.Worksheets.Any(e => e.WorksheetId == id);
+            return _context.Worksheets.Any(e => e.WorksheetId == id && e.ApplicationUserId == userId);
         }
     }
 }

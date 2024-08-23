@@ -10,7 +10,10 @@ const WorksheetList = () => {
     useEffect(() => {
         const fetchWorksheets = async () => {
             try {
-                const response = await axios.get('https://localhost:7226/api/Worksheet');
+                // Assuming the user ID is stored in localStorage or in some global context
+                const userId = localStorage.getItem('userId'); // Or from auth context
+
+                const response = await axios.get(`https://localhost:7226/api/Worksheet?userId=${userId}`);
                 setWorksheets(response.data);
             } catch (error) {
                 console.error('Error fetching worksheets:', error);
@@ -21,20 +24,20 @@ const WorksheetList = () => {
     }, []);
 
     const handleButtonClick = (worksheetId) => {
-        if (worksheetId == -1) {
+        if (worksheetId === -1) {
             navigate(`/Grade/Subject/WorksheetList/New`);
-        } else { 
+        } else {
             navigate(`/Grade/Subject/WorksheetList/${worksheetId}`);
         }
     };
-    const ColorOfButton = (SpecialNumber) => {
 
-        if (SpecialNumber % 3 == 0) {
-            return "MainButtonMenu btncolor1"
-        } else if (SpecialNumber % 3 == 1) {
-            return "MainButtonMenu btncolor2"
+    const ColorOfButton = (SpecialNumber) => {
+        if (SpecialNumber % 3 === 0) {
+            return "MainButtonMenu btncolor1";
+        } else if (SpecialNumber % 3 === 1) {
+            return "MainButtonMenu btncolor2";
         } else {
-            return "MainButtonMenu btncolor3"
+            return "MainButtonMenu btncolor3";
         }
     };
 

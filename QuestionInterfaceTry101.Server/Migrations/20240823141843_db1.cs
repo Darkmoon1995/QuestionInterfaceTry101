@@ -51,28 +51,6 @@ namespace QuestionInterfaceTry101.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Worksheets",
-                columns: table => new
-                {
-                    WorksheetId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    SkillId = table.Column<int>(type: "int", nullable: false),
-                    Number = table.Column<int>(type: "int", nullable: false),
-                    Level = table.Column<int>(type: "int", nullable: false),
-                    Title_Text = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Title_Config_Style = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Title_Config_Styledegree = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FinalMessage_Text = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FinalMessage_Config_Style = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FinalMessage_Config_Styledegree = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    WorksheetType = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Worksheets", x => x.WorksheetId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -179,6 +157,34 @@ namespace QuestionInterfaceTry101.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Worksheets",
+                columns: table => new
+                {
+                    WorksheetId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SkillId = table.Column<int>(type: "int", nullable: false),
+                    Number = table.Column<int>(type: "int", nullable: false),
+                    Level = table.Column<int>(type: "int", nullable: false),
+                    Title_Text = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Title_Config_Style = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Title_Config_Styledegree = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FinalMessage_Text = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FinalMessage_Config_Style = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FinalMessage_Config_Styledegree = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    WorksheetType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Worksheets", x => x.WorksheetId);
+                    table.ForeignKey(
+                        name: "FK_Worksheets_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "qus",
                 columns: table => new
                 {
@@ -249,6 +255,11 @@ namespace QuestionInterfaceTry101.Server.Migrations
                 name: "IX_qus_WorksheetModelWorksheetId",
                 table: "qus",
                 column: "WorksheetModelWorksheetId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Worksheets_ApplicationUserId",
+                table: "Worksheets",
+                column: "ApplicationUserId");
         }
 
         /// <inheritdoc />
@@ -276,10 +287,10 @@ namespace QuestionInterfaceTry101.Server.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Worksheets");
 
             migrationBuilder.DropTable(
-                name: "Worksheets");
+                name: "AspNetUsers");
         }
     }
 }
