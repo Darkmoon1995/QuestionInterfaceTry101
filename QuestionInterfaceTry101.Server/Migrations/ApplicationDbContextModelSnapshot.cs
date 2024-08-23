@@ -228,9 +228,6 @@ namespace QuestionInterfaceTry101.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WorksheetId"));
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("Level")
                         .HasColumnType("int");
 
@@ -244,8 +241,6 @@ namespace QuestionInterfaceTry101.Server.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("WorksheetId");
-
-                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("Worksheets");
                 });
@@ -330,10 +325,6 @@ namespace QuestionInterfaceTry101.Server.Migrations
 
             modelBuilder.Entity("QuestionInterfaceTry101.Server.Model.WorksheetModel", b =>
                 {
-                    b.HasOne("QuestionInterfaceTry101.Server.Data.ApplicationUser", "User")
-                        .WithMany("Worksheets")
-                        .HasForeignKey("ApplicationUserId");
-
                     b.OwnsOne("QuestionInterfaceTry101.Server.Model.FinalMessageModel", "FinalMessage", b1 =>
                         {
                             b1.Property<int>("WorksheetModelWorksheetId")
@@ -415,8 +406,6 @@ namespace QuestionInterfaceTry101.Server.Migrations
 
                     b.Navigation("Title")
                         .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("QuestionInterfaceTry101.Server.Model.qusModel", b =>
@@ -491,11 +480,6 @@ namespace QuestionInterfaceTry101.Server.Migrations
 
                     b.Navigation("Title")
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("QuestionInterfaceTry101.Server.Data.ApplicationUser", b =>
-                {
-                    b.Navigation("Worksheets");
                 });
 
             modelBuilder.Entity("QuestionInterfaceTry101.Server.Model.WorksheetModel", b =>

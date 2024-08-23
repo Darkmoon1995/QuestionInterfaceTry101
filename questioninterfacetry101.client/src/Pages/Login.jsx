@@ -67,10 +67,10 @@ function Login() {
     }, [email, password]);
 
     return (
-        <div className="login-container">
+        <div className="containerbox">
             <h3>Login</h3>
-            <form onSubmit={handleSubmit} className="login-form">
-                <div className="form-group">
+            <form onSubmit={handleSubmit} className="form">
+                <div className="group">
                     <input
                         type="email"
                         id="email"
@@ -84,7 +84,7 @@ function Login() {
                     <span className="bar"></span>
                     <label>Email</label>
                 </div>
-                <div className="form-group">
+                <div className="group">
                     <input
                         type="password"
                         id="password"
@@ -98,7 +98,7 @@ function Login() {
                     <span className="bar"></span>
                     <label>Password</label>
                 </div>
-                <div className="form-group remember-me-container">
+                <div className="remember-me-container">
                     <input
                         type="checkbox"
                         id="rememberme"

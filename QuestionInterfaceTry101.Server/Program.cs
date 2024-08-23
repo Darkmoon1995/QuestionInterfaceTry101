@@ -43,7 +43,7 @@ namespace QuestionInterfaceTry101.Server
 
             // Configure the HTTP request pipeline.
             app.UseCors("CorsPolicy");
-            
+
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.MapIdentityApi<ApplicationUser>();

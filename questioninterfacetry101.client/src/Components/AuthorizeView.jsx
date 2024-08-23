@@ -6,7 +6,7 @@ const UserContext = createContext({});
 function AuthorizeView(props) {
     const [authorized, setAuthorized] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState({ email: "", userId: "" });
+    const [user, setUser] = useState({ email: "" });
 
     useEffect(() => {
         let retryCount = 0;
@@ -22,7 +22,7 @@ function AuthorizeView(props) {
                 const response = await fetch(url, options);
                 if (response.status === 200) {
                     const j = await response.json();
-                    setUser({ email: j.email, userId: j.userId });
+                    setUser({ email: j.email });
                     setAuthorized(true);
                     return response;
                 } else if (response.status === 401) {
@@ -66,7 +66,6 @@ function AuthorizeView(props) {
 export function AuthorizedUser(props) {
     const user = React.useContext(UserContext);
     if (props.value === "email") return <>{user.email}</>;
-    if (props.value === "userId") return <>{user.userId}</>;
     else return <></>;
 }
 

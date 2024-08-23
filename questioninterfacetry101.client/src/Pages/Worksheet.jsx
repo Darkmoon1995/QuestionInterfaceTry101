@@ -33,7 +33,7 @@ const WorksheetDetails = () => {
     useEffect(() => {
         const fetchWorksheet = async () => {
             try {
-                const response = await apiClient.get(`/Worksheet/${worksheetId}`);
+                const response = await axios.get(`https://localhost:7226/api/Worksheet/${worksheetId}`);
                 setWorksheet(response.data);
                 setWorksheetTitle(response.data.title.text);
                 setWorksheetFinalMessage(response.data.finalMessage.text);
@@ -71,6 +71,7 @@ const WorksheetDetails = () => {
             )
             : [...worksheet.qus, newQuestion];
 
+        // Spread operator ensures a new object is created, triggering a re-render.
         setWorksheet({ ...worksheet, qus: [...updatedQuestions] });
         clearModalState();
     };
@@ -93,6 +94,7 @@ const WorksheetDetails = () => {
     };
 
     const removeQuestion = (order) => {
+        // Create a new array to avoid mutating the original state.
         const updatedQuestions = worksheet.qus.filter((q) => q.order !== order);
         setWorksheet({ ...worksheet, qus: [...updatedQuestions] });
     };
@@ -121,7 +123,7 @@ const WorksheetDetails = () => {
                 })),
             };
 
-            const response = await apiClient.put(`/Worksheet/${worksheetId}`, worksheetData);
+            const response = await axios.put(`https://localhost:7226/api/Worksheet/${worksheetId}`, worksheetData);
             console.log('Response from server:', response);
             alert('Worksheet saved successfully!');
         } catch (error) {
@@ -132,7 +134,7 @@ const WorksheetDetails = () => {
 
     const handleRemoveWorksheet = async () => {
         try {
-            await apiClient.delete(`/Worksheet/${worksheetId}`);
+            await axios.delete(`https://localhost:7226/api/Worksheet/${worksheetId}`);
             alert('Worksheet removed successfully!');
             navigate('/Grade');
         } catch (error) {
