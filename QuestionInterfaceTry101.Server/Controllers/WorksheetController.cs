@@ -1,156 +1,126 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuestionInterfaceTry101.Server.Data;
 using QuestionInterfaceTry101.Server.Model;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
-namespace QuestionInterfaceTry101.Server.Controllers
+[Authorize]
+[ApiController]
+[Route("api/[controller]")]
+public class WorksheetController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class WorksheetController : ControllerBase
+    private readonly ApplicationDbContext _context;
+    private readonly UserManager<ApplicationUser> _userManager;
+
+    public WorksheetController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
     {
-        private readonly ApplicationDbContext _context;
+        _context = context;
+        _userManager = userManager;
+    }
 
-        public WorksheetController(ApplicationDbContext context)
+    // GET: api/Worksheet
+    [HttpGet]
+    public async Task<IActionResult> GetWorksheets()
+    {
+        var user = await _userManager.GetUserAsync(User);
+        var worksheets = await _context.Worksheets
+            .Where(w => w.UserId == user.Id)
+            .ToListAsync();
+
+        return Ok(worksheets);
+    }
+
+    // GET: api/Worksheet/{id}
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetWorksheet(int id)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        var worksheet = await _context.Worksheets
+            .Where(w => w.UserId == user.Id && w.WorksheetId == id)
+            .FirstOrDefaultAsync();
+
+        if (worksheet == null)
         {
-            _context = context;
+            return NotFound();
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<WorksheetModel>>> GetWorksheets()
+        return Ok(worksheet);
+    }
+
+    // POST: api/Worksheet
+    [HttpPost]
+    public async Task<IActionResult> CreateWorksheet([FromBody] WorksheetModel worksheet)
+    {
+        if (ModelState.IsValid)
         {
-            return await _context.Worksheets.Include(w => w.qus).ToListAsync();
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<WorksheetModel>> GetWorksheet(int id)
-        {
-            var worksheet = await _context.Worksheets.Include(w => w.qus)
-                                                     .FirstOrDefaultAsync(w => w.WorksheetId == id);
-
-            if (worksheet == null)
-            {
-                return NotFound();
-            }
-
-            return worksheet;
-        }
-        [HttpPost]
-        public async Task<ActionResult<WorksheetModel>> PostWorksheet(WorksheetModel worksheet)
-        {
-            if (worksheet == null)
-            {
-                return BadRequest("Worksheet is null.");
-            }
-
-            int orderCounter = 1;  // Initialize the order counter
-            foreach (var qus in worksheet.qus)
-            {
-                qus.Order = orderCounter++;  // Increment the order for each question starting from 1
-            }
+            var user = await _userManager.GetUserAsync(User);
+            worksheet.UserId = user.Id;
 
             _context.Worksheets.Add(worksheet);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetWorksheet), new { id = worksheet.WorksheetId }, worksheet);
+            return Ok(worksheet);
         }
 
+        return BadRequest(ModelState);
+    }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutWorksheet(int id, WorksheetModel worksheet)
+    // PUT: api/Worksheet/{id}
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateWorksheet(int id, [FromBody] WorksheetModel worksheet)
+    {
+        if (id != worksheet.WorksheetId)
         {
-            if (id != worksheet.WorksheetId)
-            {
-                return BadRequest("Worksheet ID mismatch.");
-            }
-
-            var existingWorksheet = await _context.Worksheets
-                                                  .Include(w => w.qus)
-                                                  .FirstOrDefaultAsync(w => w.WorksheetId == id);
-            if (existingWorksheet == null)
-            {
-                return NotFound("Worksheet not found.");
-            }
-
-            // Update the title and other properties
-            existingWorksheet.Title.Text = worksheet.Title.Text;
-            existingWorksheet.Title.Config.Style = worksheet.Title.Config.Style;
-            existingWorksheet.Title.Config.Styledegree = worksheet.Title.Config.Styledegree;
-
-            // Update the final message in the same way
-            existingWorksheet.FinalMessage.Text = worksheet.FinalMessage.Text;
-            existingWorksheet.FinalMessage.Config.Style = worksheet.FinalMessage.Config.Style;
-            existingWorksheet.FinalMessage.Config.Styledegree = worksheet.FinalMessage.Config.Styledegree;
-
-            // Update other properties of the worksheet
-            existingWorksheet.WorksheetType = worksheet.WorksheetType;
-
-            // Handle the questions
-            existingWorksheet.qus.Clear();
-
-            int orderCounter = 1;  
-            foreach (var qus in worksheet.qus)
-            {
-                qus.Order = orderCounter++;  
-                existingWorksheet.qus.Add(qus);
-            }
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!WorksheetExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return BadRequest();
         }
 
-
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteWorksheet(int id)
+        var user = await _userManager.GetUserAsync(User);
+        if (worksheet.UserId != user.Id)
         {
-            var worksheet = await _context.Worksheets
-                .Include(w => w.qus)
-                .FirstOrDefaultAsync(w => w.WorksheetId == id);
+            return Unauthorized();
+        }
 
-            if (worksheet == null)
+        _context.Entry(worksheet).State = EntityState.Modified;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!_context.Worksheets.Any(e => e.WorksheetId == id))
             {
                 return NotFound();
             }
-
-            // Manually delete related questions
-            _context.qus.RemoveRange(worksheet.qus);
-            _context.Worksheets.Remove(worksheet);
-
-            try
+            else
             {
-                await _context.SaveChangesAsync();
+                throw;
             }
-            catch (DbUpdateException ex)
-            {
-                Console.WriteLine(ex.InnerException?.Message ?? ex.Message);
-                return StatusCode(500, "An error occurred while deleting the worksheet.");
-            }
-
-            return NoContent();
         }
 
+        return NoContent();
+    }
 
-        private bool WorksheetExists(int id)
+    // DELETE: api/Worksheet/{id}
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteWorksheet(int id)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        var worksheet = await _context.Worksheets
+            .Where(w => w.UserId == user.Id && w.WorksheetId == id)
+            .FirstOrDefaultAsync();
+
+        if (worksheet == null)
         {
-            return _context.Worksheets.Any(e => e.WorksheetId == id);
+            return NotFound();
         }
+
+        _context.Worksheets.Remove(worksheet);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 }
