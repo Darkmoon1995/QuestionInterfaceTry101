@@ -21,20 +21,20 @@ const WorksheetList = () => {
     }, []);
 
     const handleButtonClick = (worksheetId) => {
-        if (worksheetId === -1) {
-            navigate("/Grade/Subject/WorksheetList/New");
-        } else {
+        if (worksheetId == -1) {
+            navigate(`/Grade/Subject/WorksheetList/New`);
+        } else { 
             navigate(`/Grade/Subject/WorksheetList/${worksheetId}`);
         }
     };
-
     const ColorOfButton = (SpecialNumber) => {
-        if (SpecialNumber % 3 === 0) {
-            return "MainButtonMenu btncolor1";
-        } else if (SpecialNumber % 3 === 1) {
-            return "MainButtonMenu btncolor2";
+
+        if (SpecialNumber % 3 == 0) {
+            return "MainButtonMenu btncolor1"
+        } else if (SpecialNumber % 3 == 1) {
+            return "MainButtonMenu btncolor2"
         } else {
-            return "MainButtonMenu btncolor3";
+            return "MainButtonMenu btncolor3"
         }
     };
 
@@ -47,16 +47,10 @@ const WorksheetList = () => {
                     value2={`Number of Questions: ${worksheet.qus.length}`}
                     value3={worksheet.worksheetId.toString()}
                     className={ColorOfButton(worksheet.worksheetId)}
-                    onClick={() => handleButtonClick(worksheet.worksheetId)}
+                    onClick={handleButtonClick}
                 />
             ))}
-            <CustomButton
-                className="MainButtonMenu btncolor3"
-                value1="NewButton"
-                value2="This is for creating New Worksheet"
-                value3="contact"
-                onClick={() => handleButtonClick(-1)}
-            />
+            <CustomButton className="MainButtonMenu btncolor3" value1="NewButton" value2="This is for creating New Worksheet" value3="contact" onClick={() => handleButtonClick(-1)} />
         </div>
     );
 };

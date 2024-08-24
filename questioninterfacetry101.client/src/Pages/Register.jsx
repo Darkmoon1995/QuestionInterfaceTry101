@@ -6,8 +6,8 @@ function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [error, setError] = useState("");
     const navigate = useNavigate();
+    const [error, setError] = useState("");
 
     const handleLoginClick = () => {
         navigate("/login");
@@ -52,7 +52,6 @@ function Register() {
                 .then((response) => {
                     if (response.ok) {
                         setError("Successful registration.");
-                        navigate("/login");
                     } else {
                         setError("Error registering.");
                     }
