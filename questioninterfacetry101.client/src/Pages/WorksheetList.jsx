@@ -3,8 +3,6 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import CustomButton from '../Components/CustomButton';
 
-axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
-
 const WorksheetList = () => {
     const [worksheets, setWorksheets] = useState([]);
     const navigate = useNavigate();
@@ -23,20 +21,20 @@ const WorksheetList = () => {
     }, []);
 
     const handleButtonClick = (worksheetId) => {
-        if (worksheetId === -1) {
+        if (worksheetId == -1) {
             navigate(`/Grade/Subject/WorksheetList/New`);
-        } else {
+        } else { 
             navigate(`/Grade/Subject/WorksheetList/${worksheetId}`);
         }
     };
-
     const ColorOfButton = (SpecialNumber) => {
-        if (SpecialNumber % 3 === 0) {
-            return "MainButtonMenu btncolor1";
-        } else if (SpecialNumber % 3 === 1) {
-            return "MainButtonMenu btncolor2";
+
+        if (SpecialNumber % 3 == 0) {
+            return "MainButtonMenu btncolor1"
+        } else if (SpecialNumber % 3 == 1) {
+            return "MainButtonMenu btncolor2"
         } else {
-            return "MainButtonMenu btncolor3";
+            return "MainButtonMenu btncolor3"
         }
     };
 

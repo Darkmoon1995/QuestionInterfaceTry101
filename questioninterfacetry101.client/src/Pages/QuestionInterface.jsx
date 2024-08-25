@@ -5,9 +5,6 @@ import '../Css/QuestionInterface.css';
 import '../Css/SimpleTextBox.css';
 import '../Css/WierdDivCss.css';
 
-// Configure Axios to include JWT token in the Authorization header
-axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
-
 const QuestionInterface = () => {
     const [questions, setQuestions] = useState([]);
     const [editMode, setEditMode] = useState(false);
@@ -84,7 +81,7 @@ const QuestionInterface = () => {
                         sct,
                         operation,
                         title: questionTitle,
-                        TitleStyle: questionTitleStyle,
+                        TitleStyle: questionTitleStyle,  
                         TitleStyleDegree: questionTitleStyleDegree
                     }
                     : q
@@ -97,15 +94,21 @@ const QuestionInterface = () => {
                 sct,
                 operation,
                 title: questionTitle,
-                TitleStyle: questionTitleStyle,
+                TitleStyle: questionTitleStyle,  
                 TitleStyleDegree: questionTitleStyleDegree
             };
             setQuestions([...questions, newQuestion]);
         }
-        clearQuestionForm();
+        setEditMode(false);
+        setCurrentQuestionId(null);
+        setNumber1('');
+        setNumber2('');
+        setSct('');
+        setQuestionTitle('');
+        setIsVisible(false);
     };
 
-    const clearQuestionForm = () => {
+    const handleCancel = () => {
         setEditMode(false);
         setCurrentQuestionId(null);
         setNumber1('');
@@ -200,7 +203,6 @@ const QuestionInterface = () => {
                         <option value="3">3</option>
                     </select>
                 </div>
-
                 <div className="container">
                     <label className="TextBoxlabel" htmlFor="FinalMessageStyle">Final Message Style:</label>
                     <select
@@ -230,125 +232,126 @@ const QuestionInterface = () => {
             <br />
             <h3>Questions</h3>
             <hr />
-
+            
             <div className="WhiteBox">
                 {questions.map(question => (
+                    
                     <div key={question.id} className="accordion-item">
                         <div className="QuestionBlackBoarder">
-                            <div className="accordion-header">
-                                <p className="p1BorderBlack">{question.id}. {question.title}</p>
-                                <p>{question.number1} {question.operation} {question.number2}</p>
+                        <div className="accordion-header">
+                            <p className="p1BorderBlack">{question.id}. {question.title}</p>
+                            <p>{question.number1} {question.operation} {question.number2}</p>
                                 <p>SCT: {question.sct}</p>
-                                <p>Question Style: {question.TitleStyle}</p>
-                                <p>Style Degree: {question.TitleStyleDegree}</p>
-                            </div>
-                            <div className="accordion-actions">
+                                    <p>Question Style: {question.TitleStyle}</p>
+                                    <p>Style Degree: {question.TitleStyleDegree}</p>
+                        </div>
+                        <div className="accordion-actions">
                                 <button className="custom-btn EditButton" onClick={() => handleEditQuestion(question.id)}>Edit</button>
                                 <button className="custom-btn RemoveQuestionButton" onClick={() => removeQuestion(question.id)}>Remove</button>
-                            </div>
+                        </div>
                         </div>
                     </div>
                 ))}
             </div>
-
+            
             <p>
                 <button className="custom-btn BlueButton" id="AddQuestion" onClick={() => setIsVisible(true)}>Add Question</button>
             </p>
 
             <ReactModal
                 isOpen={isVisible}
-                onRequestClose={clearQuestionForm}
+                onRequestClose={handleCancel}
                 className="Modal"
             >
                 <div className="WhiteBox">
-                    <div className="container">
-                        <label className="TextBoxlabel" htmlFor="QuestionTitle">Question Title:</label>
-                        <input
-                            type="text"
-                            className="TextBoxinput"
-                            id="QuestionTitle"
-                            value={questionTitle}
-                            onChange={(e) => setQuestionTitle(e.target.value)}
-                        />
-                    </div>
+                <div className="container">
+                    <label className="TextBoxlabel" htmlFor="QuestionTitle">Question Title:</label>
+                    <input
+                        type="text"
+                        className="TextBoxinput"
+                        id="QuestionTitle"
+                        value={questionTitle}
+                        onChange={(e) => setQuestionTitle(e.target.value)}
+                    />
+                </div>
 
-                    <div className="container">
-                        <label className="TextBoxlabel" htmlFor="Number1">Number 1:</label>
-                        <input
-                            type="number"
-                            className="TextBoxinput"
-                            id="Number1"
-                            value={number1}
-                            onChange={(e) => setNumber1(e.target.value)}
-                        />
-                    </div>
+                <div className="container">
+                    <label className="TextBoxlabel" htmlFor="Number1">Number 1:</label>
+                    <input
+                        type="number"
+                        className="TextBoxinput"
+                        id="Number1"
+                        value={number1}
+                        onChange={(e) => setNumber1(e.target.value)}
+                    />
+                </div>
 
-                    <div className="container">
-                        <label className="TextBoxlabel" htmlFor="Operation">Operation:</label>
-                        <select
-                            className="TextBoxSelect"
-                            id="Operation"
-                            value={operation}
-                            onChange={(e) => setOperation(e.target.value)}
-                        >
-                            <option value="+">+</option>
-                            <option value="-">-</option>
-                            <option value="*">*</option>
-                            <option value="/">/</option>
-                        </select>
-                    </div>
+                <div className="container">
+                    <label className="TextBoxlabel" htmlFor="Operation">Operation:</label>
+                    <select
+                        className="TextBoxSelect"
+                        id="Operation"
+                        value={operation}
+                        onChange={(e) => setOperation(e.target.value)}
+                    >
+                        <option value="+">+</option>
+                        <option value="-">-</option>
+                        <option value="*">*</option>
+                        <option value="/">/</option>
+                    </select>
+                </div>
 
-                    <div className="container">
-                        <label className="TextBoxlabel" htmlFor="Number2">Number 2:</label>
-                        <input
-                            type="number"
-                            className="TextBoxinput"
-                            id="Number2"
-                            value={number2}
-                            onChange={(e) => setNumber2(e.target.value)}
-                        />
-                    </div>
+                <div className="container">
+                    <label className="TextBoxlabel" htmlFor="Number2">Number 2:</label>
+                    <input
+                        type="number"
+                        className="TextBoxinput"
+                        id="Number2"
+                        value={number2}
+                        onChange={(e) => setNumber2(e.target.value)}
+                    />
+                </div>
 
-                    <div className="container">
-                        <label className="TextBoxlabel" htmlFor="SCT">SCT:</label>
-                        <input
-                            type="number"
-                            className="TextBoxinput"
-                            id="SCT"
-                            value={sct}
-                            onChange={(e) => setSct(e.target.value)}
-                        />
-                    </div>
+                <div className="container">
+                    <label className="TextBoxlabel" htmlFor="SCT">SCT:</label>
+                    <input
+                        type="number"
+                        className="TextBoxinput"
+                        id="SCT"
+                        value={sct}
+                        onChange={(e) => setSct(e.target.value)}
+                    />
+                </div>
 
-                    <div className="container">
-                        <label className="TextBoxlabel" htmlFor="QuestionTitleStyle">Question Title Style:</label>
-                        <select
-                            className="TextBoxSelect"
-                            id="QuestionTitleStyle"
-                            value={questionTitleStyle}
-                            onChange={(e) => setQuestionTitleStyle(e.target.value)}
-                        >
-                            <option value="cheerful">Cheerful</option>
-                            <option value="serious">Serious</option>
-                            <option value="motivational">Motivational</option>
-                        </select>
+                <div className="container">
+                    <label className="TextBoxlabel" htmlFor="QuestionTitleStyle">Question Title Style:</label>
+                    <select
+                        className="TextBoxSelect"
+                        id="QuestionTitleStyle"
+                        value={questionTitleStyle}
+                        onChange={(e) => setQuestionTitleStyle(e.target.value)}
+                    >
+                        <option value="cheerful">Cheerful</option>
+                        <option value="serious">Serious</option>
+                        <option value="motivational">Motivational</option>
+                    </select>
 
-                        <label className="TextBoxlabel" htmlFor="QuestionTitleStyleDegree">Style Degree:</label>
-                        <select
-                            className="TextBoxSelect"
-                            id="QuestionTitleStyleDegree"
-                            value={questionTitleStyleDegree}
-                            onChange={(e) => setQuestionTitleStyleDegree(e.target.value)}
-                        >
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                        </select>
-                    </div>
+                    <label className="TextBoxlabel" htmlFor="QuestionTitleStyleDegree">Style Degree:</label>
+                    <select
+                        className="TextBoxSelect"
+                        id="QuestionTitleStyleDegree"
+                        value={questionTitleStyleDegree}
+                        onChange={(e) => setQuestionTitleStyleDegree(e.target.value)}
+                    >
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
+                </div>
 
-                    <p>
-                        <button className="custom-btn BlueButton" onClick={handleAddQuestion}>Save</button>
-                        <button className="custom-btn RedButton" onClick={clearQuestionForm}>Cancel</button>
+                <p>
+                    <button className="custom-btn BlueButton" onClick={handleAddQuestion}>Save</button>
+                    <button className="custom-btn RedButton" onClick={handleCancel}>Cancel</button>
                     </p>
                 </div>
             </ReactModal>

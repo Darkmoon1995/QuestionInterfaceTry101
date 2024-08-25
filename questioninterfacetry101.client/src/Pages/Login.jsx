@@ -28,16 +28,15 @@ function Login() {
         navigate("/register");
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-
         if (!email || !password) {
             setError("Please fill in all fields.");
-            return;
-        }
+        } else {
+            setError("");
+            const loginurl = rememberme ? "/login?useCookies=true" : "/login?useSessionCookies=true";
 
-        try {
-            const response = await fetch("https://localhost:7226/api/auth/login", {
+            fetch(loginurl, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -46,19 +45,19 @@ function Login() {
                     email: email,
                     password: password,
                 }),
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                localStorage.setItem("token", data.token);
-                setError("");
-                navigate('/Grade');
-            } else {
-                setError("Invalid login credentials.");
-            }
-        } catch (error) {
-            console.error("Login error:", error);
-            setError("Error logging in. Please try again later.");
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        setError("Successful Login.");
+                        window.location.href = '/Grade';
+                    } else {
+                        setError("Error Logging In.");
+                    }
+                })
+                .catch((error) => {
+                    console.error(error);
+                    setError("Error Logging in.");
+                });
         }
     };
 

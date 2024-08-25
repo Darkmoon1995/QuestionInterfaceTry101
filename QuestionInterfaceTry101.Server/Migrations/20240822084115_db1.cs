@@ -1,4 +1,4 @@
-﻿pdang System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -202,7 +202,8 @@ namespace QuestionInterfaceTry101.Server.Migrations
                         name: "FK_qus_Worksheets_WorksheetModelWorksheetId",
                         column: x => x.WorksheetModelWorksheetId,
                         principalTable: "Worksheets",
-                        principalColumn: "WorksheetId");
+                        principalColumn: "WorksheetId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(

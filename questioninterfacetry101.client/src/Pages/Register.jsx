@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import '../Css/LoginRegister.css';
 
@@ -29,26 +29,17 @@ function Register() {
         }
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-
         if (!email || !password || !confirmPassword) {
             setError("Please fill in all fields.");
-            return;
-        }
-
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             setError("Please enter a valid email address.");
-            return;
-        }
-
-        if (password !== confirmPassword) {
+        } else if (password !== confirmPassword) {
             setError("Passwords do not match.");
-            return;
-        }
-
-        try {
-            const response = await fetch("https://localhost:7226/api/auth/register", {
+        } else {
+            setError("");
+            fetch("/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -57,17 +48,18 @@ function Register() {
                     email: email,
                     password: password,
                 }),
-            });
-
-            if (response.ok) {
-                setError("");
-                navigate("/login");
-            } else {
-                setError("Error registering. Please try again.");
-            }
-        } catch (error) {
-            console.error("Registration error:", error);
-            setError("Error registering. Please try again later.");
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        setError("Successful registration.");
+                    } else {
+                        setError("Error registering.");
+                    }
+                })
+                .catch((error) => {
+                    console.error(error);
+                    setError("Error registering.");
+                });
         }
     };
 
