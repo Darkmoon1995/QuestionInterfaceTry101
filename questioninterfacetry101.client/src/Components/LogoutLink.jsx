@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-
+//remove the jwt when loged out
 function LogoutLink(props) {
     const navigate = useNavigate();
 
@@ -9,11 +9,13 @@ function LogoutLink(props) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem('token')}`, 
             },
             body: ""
         })
             .then((data) => {
                 if (data.ok) {
+                    localStorage.removeItem('token');
                     navigate("/login");
                 }
             })

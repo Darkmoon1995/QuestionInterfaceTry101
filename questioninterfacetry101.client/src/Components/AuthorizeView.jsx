@@ -12,26 +12,28 @@ function AuthorizeView(props) {
         let retryCount = 0;
         const maxRetries = 10;
         const delay = 1000;
+        const token = localStorage.getItem('token');
 
-        function wait(delay) {
-            return new Promise((resolve) => setTimeout(resolve, delay));
-        }
+        const wait = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
 
-        async function fetchWithRetry(url, options) {
+        const fetchWithRetry = async (url, options) => {
             try {
                 const response = await fetch(url, options);
-                if (response.status === 200) {
-                    const j = await response.json();
-                    setUser({ email: j.email });
+                if (response.ok) {
+                    const json = await response.json();
+                    setUser({ email: json.email });
                     setAuthorized(true);
                     return response;
                 } else if (response.status === 401) {
+                    console.error('Unauthorized access - Token might be invalid');
                     return response;
                 } else {
-                    throw new Error("" + response.status);
+                    console.error(`Request failed with status ${response.status}`);
+                    throw new Error(`Error: ${response.status}`);
                 }
             } catch (error) {
                 retryCount++;
+                console.error(`Fetch attempt ${retryCount}: ${error.message}`);
                 if (retryCount > maxRetries) {
                     throw error;
                 } else {
@@ -39,23 +41,36 @@ function AuthorizeView(props) {
                     return fetchWithRetry(url, options);
                 }
             }
-        }
+        };
 
-        fetchWithRetry("/pingauth", { method: "GET" })
-            .catch((error) => {
-                console.log(error.message);
+        if (token) {
+            fetchWithRetry("https://localhost:7226/api/auth/pingauth", {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
             })
-            .finally(() => {
-                setLoading(false);
-            });
+                .catch((error) => {
+                    console.log(`Final error after retries: ${error.message}`);
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        } else {
+            console.warn("No token found, user not authorized");
+            setLoading(false);
+        }
     }, []);
 
     if (loading) {
         return <p>Loading...</p>;
     } else {
-        if (authorized && !loading) {
+        if (authorized) {
             return (
-                <UserContext.Provider value={user}>{props.children}</UserContext.Provider>
+                <UserContext.Provider value={user}>
+                    {props.children}
+                </UserContext.Provider>
             );
         } else {
             return <Navigate to="/login" />;
@@ -65,8 +80,7 @@ function AuthorizeView(props) {
 
 export function AuthorizedUser(props) {
     const user = React.useContext(UserContext);
-    if (props.value === "email") return <>{user.email}</>;
-    else return <></>;
+    return props.value === "email" ? <>{user.email}</> : null;
 }
 
 export default AuthorizeView;

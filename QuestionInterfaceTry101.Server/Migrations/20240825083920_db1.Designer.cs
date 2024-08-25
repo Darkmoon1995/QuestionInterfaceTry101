@@ -12,7 +12,7 @@ using QuestionInterfaceTry101.Server.Data;
 namespace QuestionInterfaceTry101.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240822084115_db1")]
+    [Migration("20240825083920_db1")]
     partial class db1
     {
         /// <inheritdoc />
@@ -272,7 +272,7 @@ namespace QuestionInterfaceTry101.Server.Migrations
 
                     b.HasIndex("WorksheetModelWorksheetId");
 
-                    b.ToTable("qus", (string)null);
+                    b.ToTable("qus");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -415,8 +415,7 @@ namespace QuestionInterfaceTry101.Server.Migrations
                 {
                     b.HasOne("QuestionInterfaceTry101.Server.Model.WorksheetModel", null)
                         .WithMany("qus")
-                        .HasForeignKey("WorksheetModelWorksheetId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("WorksheetModelWorksheetId");
 
                     b.OwnsOne("QuestionInterfaceTry101.Server.Model.SettingsModel", "Settings", b1 =>
                         {

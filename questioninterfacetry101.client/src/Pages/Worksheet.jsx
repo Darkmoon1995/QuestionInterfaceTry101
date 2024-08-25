@@ -12,32 +12,43 @@ const WorksheetDetails = () => {
     const [worksheet, setWorksheet] = useState(null);
     const [loading, setLoading] = useState(true);
     const [visible, setVisible] = useState(false);
-    const [number1, setNumber1] = useState('');
-    const [number2, setNumber2] = useState('');
-    const [sct, setSct] = useState('');
-    const [operation, setOperation] = useState('+');
-    const [degree, setDegree] = useState('1');
+    const [formData, setFormData] = useState({
+        number1: '',
+        number2: '',
+        sct: '',
+        operation: '+',
+        degree: '1',
+        questionTitle: '',
+        questionTitleStyle: 'cheerful',
+        questionTitleStyleDegree: '1'
+    });
     const [editingQuestion, setEditingQuestion] = useState(null);
 
-    const [worksheetTitle, setWorksheetTitle] = useState('');
-    const [worksheetFinalMessage, setWorksheetFinalMessage] = useState('');
-    const [worksheetType, setWorksheetType] = useState('');
-    const [textStyle, setTextStyle] = useState('friendly');
-    const [textStyleDegree, setTextStyleDegree] = useState('1');
-    const [finalMessageStyle, setFinalMessageStyle] = useState('excited');
-    const [finalMessageStyleDegree, setFinalMessageStyleDegree] = useState('2');
-    const [questionTitle, setQuestionTitle] = useState('');
-    const [questionTitleStyle, setQuestionTitleStyle] = useState('cheerful');
-    const [questionTitleStyleDegree, setQuestionTitleStyleDegree] = useState('1');
+    const [worksheetData, setWorksheetData] = useState({
+        title: '',
+        finalMessage: '',
+        worksheetType: '',
+        textStyle: 'friendly',
+        textStyleDegree: '1',
+        finalMessageStyle: 'excited',
+        finalMessageStyleDegree: '2'
+    });
 
+    // Fetch worksheet data on mount
     useEffect(() => {
         const fetchWorksheet = async () => {
             try {
                 const response = await axios.get(`https://localhost:7226/api/Worksheet/${worksheetId}`);
                 setWorksheet(response.data);
-                setWorksheetTitle(response.data.title.text);
-                setWorksheetFinalMessage(response.data.finalMessage.text);
-                setWorksheetType(response.data.worksheetType);
+                setWorksheetData({
+                    title: response.data.title.text,
+                    finalMessage: response.data.finalMessage.text,
+                    worksheetType: response.data.worksheetType,
+                    textStyle: response.data.title.config.style,
+                    textStyleDegree: response.data.title.config.styledegree,
+                    finalMessageStyle: response.data.finalMessage.config.style,
+                    finalMessageStyleDegree: response.data.finalMessage.config.styledegree
+                });
             } catch (error) {
                 console.error('Error fetching worksheet:', error);
             } finally {
@@ -48,31 +59,42 @@ const WorksheetDetails = () => {
         fetchWorksheet();
     }, [worksheetId]);
 
+    // Handle changes in form fields
+    const handleChange = (e) => {
+        const { id, value } = e.target;
+        setFormData(prevState => ({ ...prevState, [id]: value }));
+    };
+
+    const handleDataChange = (e) => {
+        const { id, value } = e.target;
+        setWorksheetData(prevState => ({ ...prevState, [id]: value }));
+    };
+
+    // Add or edit a question
     const handleAddQuestion = () => {
         const newQuestion = {
             order: editingQuestion !== null ? editingQuestion : worksheet.qus.length + 1,
             settings: {
-                number1,
-                number2,
-                operation,
-                degree
+                number1: formData.number1,
+                number2: formData.number2,
+                operation: formData.operation,
+                degree: formData.degree
             },
             numberOfOptions: 4,
-            sct,
+            sct: formData.sct,
             title: {
-                text: questionTitle,
-                config: { style: questionTitleStyle, styledegree: questionTitleStyleDegree }
+                text: formData.questionTitle,
+                config: { style: formData.questionTitleStyle, styledegree: formData.questionTitleStyleDegree }
             }
         };
 
         const updatedQuestions = editingQuestion !== null
-            ? worksheet.qus.map((question) =>
+            ? worksheet.qus.map(question =>
                 question.order === editingQuestion ? newQuestion : question
             )
             : [...worksheet.qus, newQuestion];
 
-        // Spread operator ensures a new object is created, triggering a re-render.
-        setWorksheet({ ...worksheet, qus: [...updatedQuestions] });
+        setWorksheet(prevWorksheet => ({ ...prevWorksheet, qus: updatedQuestions }));
         clearModalState();
     };
 
@@ -81,31 +103,34 @@ const WorksheetDetails = () => {
     };
 
     const clearModalState = () => {
-        setNumber1('');
-        setNumber2('');
-        setSct('');
-        setOperation('+');
-        setDegree('1');
-        setQuestionTitle('');
-        setQuestionTitleStyle('cheerful');
-        setQuestionTitleStyleDegree('1');
+        setFormData({
+            number1: '',
+            number2: '',
+            sct: '',
+            operation: '+',
+            degree: '1',
+            questionTitle: '',
+            questionTitleStyle: 'cheerful',
+            questionTitleStyleDegree: '1'
+        });
         setEditingQuestion(null);
         setVisible(false);
     };
 
+    // Remove a question
     const removeQuestion = (order) => {
-        // Create a new array to avoid mutating the original state.
-        const updatedQuestions = worksheet.qus.filter((q) => q.order !== order);
-        setWorksheet({ ...worksheet, qus: [...updatedQuestions] });
+        const updatedQuestions = worksheet.qus.filter(q => q.order !== order);
+        setWorksheet(prevWorksheet => ({ ...prevWorksheet, qus: updatedQuestions }));
     };
 
+    // Save all worksheet data
     const handleSaveAll = async () => {
         try {
-            const worksheetData = {
+            const worksheetPayload = {
                 ...worksheet,
-                title: { text: worksheetTitle, config: { style: textStyle, styledegree: textStyleDegree } },
-                finalMessage: { text: worksheetFinalMessage, config: { style: finalMessageStyle, styledegree: finalMessageStyleDegree } },
-                worksheetType,
+                title: { text: worksheetData.title, config: { style: worksheetData.textStyle, styledegree: worksheetData.textStyleDegree } },
+                finalMessage: { text: worksheetData.finalMessage, config: { style: worksheetData.finalMessageStyle, styledegree: worksheetData.finalMessageStyleDegree } },
+                worksheetType: worksheetData.worksheetType,
                 qus: worksheet.qus.map((q, index) => ({
                     ...q,
                     order: index + 1,
@@ -123,7 +148,7 @@ const WorksheetDetails = () => {
                 })),
             };
 
-            const response = await axios.put(`https://localhost:7226/api/Worksheet/${worksheetId}`, worksheetData);
+            const response = await axios.put(`https://localhost:7226/api/Worksheet/${worksheetId}`, worksheetPayload);
             console.log('Response from server:', response);
             alert('Worksheet saved successfully!');
         } catch (error) {
@@ -132,6 +157,7 @@ const WorksheetDetails = () => {
         }
     };
 
+    // Remove the worksheet
     const handleRemoveWorksheet = async () => {
         try {
             await axios.delete(`https://localhost:7226/api/Worksheet/${worksheetId}`);
@@ -143,6 +169,7 @@ const WorksheetDetails = () => {
         }
     };
 
+    // Loading and error states
     if (loading) {
         return <div>Loading...</div>;
     }

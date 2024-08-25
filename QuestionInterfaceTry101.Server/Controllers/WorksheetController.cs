@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuestionInterfaceTry101.Server.Data;
 using QuestionInterfaceTry101.Server.Model;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace QuestionInterfaceTry101.Server.Controllers
 {
+    [Authorize]  
     [Route("api/[controller]")]
     [ApiController]
     public class WorksheetController : ControllerBase
@@ -45,10 +47,10 @@ namespace QuestionInterfaceTry101.Server.Controllers
                 return BadRequest("Worksheet is null.");
             }
 
-            int orderCounter = 1;  // Initialize the order counter
+            int orderCounter = 1;
             foreach (var qus in worksheet.qus)
             {
-                qus.Order = orderCounter++;  // Increment the order for each question starting from 1
+                qus.Order = orderCounter++;
             }
 
             _context.Worksheets.Add(worksheet);
@@ -74,20 +76,16 @@ namespace QuestionInterfaceTry101.Server.Controllers
                 return NotFound("Worksheet not found.");
             }
 
-            // Update the title and other properties
             existingWorksheet.Title.Text = worksheet.Title.Text;
             existingWorksheet.Title.Config.Style = worksheet.Title.Config.Style;
             existingWorksheet.Title.Config.Styledegree = worksheet.Title.Config.Styledegree;
 
-            // Update the final message in the same way
             existingWorksheet.FinalMessage.Text = worksheet.FinalMessage.Text;
             existingWorksheet.FinalMessage.Config.Style = worksheet.FinalMessage.Config.Style;
             existingWorksheet.FinalMessage.Config.Styledegree = worksheet.FinalMessage.Config.Styledegree;
 
-            // Update other properties of the worksheet
             existingWorksheet.WorksheetType = worksheet.WorksheetType;
 
-            // Handle the questions
             existingWorksheet.qus.Clear();
 
             int orderCounter = 1;  

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import '../Css/LoginRegister.css';
 
@@ -29,17 +29,26 @@ function Register() {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+
         if (!email || !password || !confirmPassword) {
             setError("Please fill in all fields.");
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            return;
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             setError("Please enter a valid email address.");
-        } else if (password !== confirmPassword) {
+            return;
+        }
+
+        if (password !== confirmPassword) {
             setError("Passwords do not match.");
-        } else {
-            setError("");
-            fetch("/register", {
+            return;
+        }
+
+        try {
+            const response = await fetch("https://localhost:7226/api/auth/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -48,18 +57,17 @@ function Register() {
                     email: email,
                     password: password,
                 }),
-            })
-                .then((response) => {
-                    if (response.ok) {
-                        setError("Successful registration.");
-                    } else {
-                        setError("Error registering.");
-                    }
-                })
-                .catch((error) => {
-                    console.error(error);
-                    setError("Error registering.");
-                });
+            });
+
+            if (response.ok) {
+                setError("");
+                navigate("/login");
+            } else {
+                setError("Error registering. Please try again.");
+            }
+        } catch (error) {
+            console.error("Registration error:", error);
+            setError("Error registering. Please try again later.");
         }
     };
 

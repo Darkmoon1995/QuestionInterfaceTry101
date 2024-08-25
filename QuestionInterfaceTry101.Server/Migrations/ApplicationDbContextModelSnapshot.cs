@@ -269,7 +269,7 @@ namespace QuestionInterfaceTry101.Server.Migrations
 
                     b.HasIndex("WorksheetModelWorksheetId");
 
-                    b.ToTable("qus", (string)null);
+                    b.ToTable("qus");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -412,8 +412,7 @@ namespace QuestionInterfaceTry101.Server.Migrations
                 {
                     b.HasOne("QuestionInterfaceTry101.Server.Model.WorksheetModel", null)
                         .WithMany("qus")
-                        .HasForeignKey("WorksheetModelWorksheetId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("WorksheetModelWorksheetId");
 
                     b.OwnsOne("QuestionInterfaceTry101.Server.Model.SettingsModel", "Settings", b1 =>
                         {
