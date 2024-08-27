@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using QuestionInterfaceTry101.Server.Data;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Numerics;
 using System.Text.Json.Serialization;
 
 namespace QuestionInterfaceTry101.Server.Model

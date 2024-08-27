@@ -6,8 +6,8 @@ function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const navigate = useNavigate();
     const [error, setError] = useState("");
+    const navigate = useNavigate();
 
     const handleLoginClick = () => {
         navigate("/login");
@@ -15,21 +15,22 @@ function Register() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        if (name === "email") {
-            setEmail(value);
-            document.getElementById("email").classList.toggle("used", value !== "");
-        }
-        if (name === "password") {
-            setPassword(value);
-            document.getElementById("password").classList.toggle("used", value !== "");
-        }
-        if (name === "confirmPassword") {
-            setConfirmPassword(value);
-            document.getElementById("confirmPassword").classList.toggle("used", value !== "");
+        switch (name) {
+            case "email":
+                setEmail(value);
+                break;
+            case "password":
+                setPassword(value);
+                break;
+            case "confirmPassword":
+                setConfirmPassword(value);
+                break;
+            default:
+                break;
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!email || !password || !confirmPassword) {
             setError("Please fill in all fields.");
@@ -39,34 +40,33 @@ function Register() {
             setError("Passwords do not match.");
         } else {
             setError("");
-            fetch("/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email: email,
-                    password: password,
-                }),
-            })
-                .then((response) => {
-                    if (response.ok) {
-                        setError("Successful registration.");
-                    } else {
-                        setError("Error registering.");
-                    }
-                })
-                .catch((error) => {
-                    console.error(error);
-                    setError("Error registering.");
+            try {
+                const response = await fetch("https://localhost:7226/api/auth/register", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ email, password }),
                 });
+
+                if (response.ok) {
+                    setError("Successful registration.");
+                    setTimeout(() => navigate("/login"), 2000);
+                } else {
+                    const errorData = await response.json();
+                    setError(errorData?.message || "Error registering.");
+                }
+            } catch (error) {
+                console.error(error);
+                setError("Error registering.");
+            }
         }
     };
 
     useEffect(() => {
-        if (email !== "") document.getElementById("email").classList.add("used");
-        if (password !== "") document.getElementById("password").classList.add("used");
-        if (confirmPassword !== "") document.getElementById("confirmPassword").classList.add("used");
+        document.getElementById("email")?.classList.toggle("used", email !== "");
+        document.getElementById("password")?.classList.toggle("used", password !== "");
+        document.getElementById("confirmPassword")?.classList.toggle("used", confirmPassword !== "");
     }, [email, password, confirmPassword]);
 
     return (

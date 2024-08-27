@@ -41,7 +41,7 @@ const QuestionInterface = () => {
                     Order: index + 1,
                     Title: {
                         Text: q.title,
-                        Config: { Style: questionTitleStyle, Styledegree: questionTitleStyleDegree }
+                        Config: { Style: q.TitleStyle, Styledegree: q.TitleStyleDegree }
                     },
                     Settings: {
                         Number1: parseInt(q.number1, 10),
@@ -81,7 +81,7 @@ const QuestionInterface = () => {
                         sct,
                         operation,
                         title: questionTitle,
-                        TitleStyle: questionTitleStyle,  
+                        TitleStyle: questionTitleStyle,
                         TitleStyleDegree: questionTitleStyleDegree
                     }
                     : q
@@ -94,7 +94,7 @@ const QuestionInterface = () => {
                 sct,
                 operation,
                 title: questionTitle,
-                TitleStyle: questionTitleStyle,  
+                TitleStyle: questionTitleStyle,
                 TitleStyleDegree: questionTitleStyleDegree
             };
             setQuestions([...questions, newQuestion]);
@@ -128,6 +128,8 @@ const QuestionInterface = () => {
             setSct(question.sct);
             setOperation(question.operation);
             setQuestionTitle(question.title);
+            setQuestionTitleStyle(question.TitleStyle);
+            setQuestionTitleStyleDegree(question.TitleStyleDegree);
             setIsVisible(true);
         }
     };

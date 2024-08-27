@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import CustomButton from '../Components/CustomButton';
+import axiosInstance from '../Components/axiosconfig.js';
 
 const WorksheetList = () => {
     const [worksheets, setWorksheets] = useState([]);
@@ -10,7 +10,7 @@ const WorksheetList = () => {
     useEffect(() => {
         const fetchWorksheets = async () => {
             try {
-                const response = await axios.get('https://localhost:7226/api/Worksheet');
+                const response = await axiosInstance.get('/Worksheet');
                 setWorksheets(response.data);
             } catch (error) {
                 console.error('Error fetching worksheets:', error);
@@ -23,18 +23,18 @@ const WorksheetList = () => {
     const handleButtonClick = (worksheetId) => {
         if (worksheetId == -1) {
             navigate(`/Grade/Subject/WorksheetList/New`);
-        } else { 
+        } else {
             navigate(`/Grade/Subject/WorksheetList/${worksheetId}`);
         }
     };
-    const ColorOfButton = (SpecialNumber) => {
 
+    const ColorOfButton = (SpecialNumber) => {
         if (SpecialNumber % 3 == 0) {
-            return "MainButtonMenu btncolor1"
+            return "MainButtonMenu btncolor1";
         } else if (SpecialNumber % 3 == 1) {
-            return "MainButtonMenu btncolor2"
+            return "MainButtonMenu btncolor2";
         } else {
-            return "MainButtonMenu btncolor3"
+            return "MainButtonMenu btncolor3";
         }
     };
 

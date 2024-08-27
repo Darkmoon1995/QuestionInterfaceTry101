@@ -1,5 +1,6 @@
 import React, { useState, useEffect, createContext } from 'react';
 import { Navigate } from 'react-router-dom';
+import axiosInstance from './axiosConfig.js';
 
 const UserContext = createContext({});
 
@@ -9,57 +10,29 @@ function AuthorizeView(props) {
     const [user, setUser] = useState({ email: "" });
 
     useEffect(() => {
-        let retryCount = 0;
-        const maxRetries = 10;
-        const delay = 1000;
-
-        function wait(delay) {
-            return new Promise((resolve) => setTimeout(resolve, delay));
-        }
-
-        async function fetchWithRetry(url, options) {
+        const fetchUser = async () => {
             try {
-                const response = await fetch(url, options);
-                if (response.status === 200) {
-                    const j = await response.json();
-                    setUser({ email: j.email });
-                    setAuthorized(true);
-                    return response;
-                } else if (response.status === 401) {
-                    return response;
-                } else {
-                    throw new Error("" + response.status);
-                }
+                const response = await axiosInstance.get('/Auth/pingauth');
+                setUser({ email: response.data.email });
+                setAuthorized(true);
             } catch (error) {
-                retryCount++;
-                if (retryCount > maxRetries) {
-                    throw error;
-                } else {
-                    await wait(delay);
-                    return fetchWithRetry(url, options);
-                }
-            }
-        }
-
-        fetchWithRetry("/pingauth", { method: "GET" })
-            .catch((error) => {
-                console.log(error.message);
-            })
-            .finally(() => {
+                setAuthorized(false);
+            } finally {
                 setLoading(false);
-            });
+            }
+        };
+
+        fetchUser();
     }, []);
 
     if (loading) {
         return <p>Loading...</p>;
+    } else if (authorized) {
+        return (
+            <UserContext.Provider value={user}>{props.children}</UserContext.Provider>
+        );
     } else {
-        if (authorized && !loading) {
-            return (
-                <UserContext.Provider value={user}>{props.children}</UserContext.Provider>
-            );
-        } else {
-            return <Navigate to="/login" />;
-        }
+        return <Navigate to="/login" />;
     }
 }
 

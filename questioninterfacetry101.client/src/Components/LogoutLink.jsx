@@ -3,8 +3,12 @@ import { useNavigate } from "react-router-dom";
 function LogoutLink(props) {
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleLogout = (e) => {
         e.preventDefault();
+
+        localStorage.removeItem('jwtToken');
+        sessionStorage.removeItem('jwtToken');
+
         fetch("/logout", {
             method: "POST",
             headers: {
@@ -13,17 +17,16 @@ function LogoutLink(props) {
             body: ""
         })
             .then((data) => {
-                if (data.ok) {
-                    navigate("/login");
-                }
+                navigate("/login");
             })
             .catch((error) => {
-                console.error(error);
+                console.error("Error during logout:", error);
+                navigate("/login");
             });
     };
 
     return (
-        <a href="#" onClick={handleSubmit}>Logout</a>
+        <a href="#" onClick={handleLogout}>Logout</a>
     );
 }
 

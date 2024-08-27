@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import '../Css/LoginRegister.css';
 
@@ -11,60 +11,62 @@ function Login() {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        if (name === "email") {
-            setEmail(value);
-            document.getElementById("email").classList.toggle("used", value !== "");
-        }
-        if (name === "password") {
-            setPassword(value);
-            document.getElementById("password").classList.toggle("used", value !== "");
-        }
-        if (name === "rememberme") {
-            setRememberme(type === "checkbox" ? checked : value);
-        }
+        if (name === "email") setEmail(value);
+        if (name === "password") setPassword(value);
+        if (name === "rememberme") setRememberme(checked);
     };
 
     const handleRegisterClick = () => {
         navigate("/register");
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+
         if (!email || !password) {
             setError("Please fill in all fields.");
-        } else {
-            setError("");
-            const loginurl = rememberme ? "/login?useCookies=true" : "/login?useSessionCookies=true";
+            return;
+        }
 
-            fetch(loginurl, {
+        setError("");
+
+        try {
+            const response = await fetch("https://localhost:7226/api/Auth/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    email: email,
-                    password: password,
-                }),
-            })
-                .then((response) => {
-                    if (response.ok) {
-                        setError("Successful Login.");
-                        window.location.href = '/Grade';
+                body: JSON.stringify({ email, password }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Login response data:", data); // Log the token received
+
+                if (data.token) {
+                    // Store the token based on "Remember Me"
+                    if (rememberme) {
+                        localStorage.setItem('jwtToken', data.token);
+                        console.log('Token saved in localStorage');
                     } else {
-                        setError("Error Logging In.");
+                        sessionStorage.setItem('jwtToken', data.token);
+                        console.log('Token saved in sessionStorage');
                     }
-                })
-                .catch((error) => {
-                    console.error(error);
-                    setError("Error Logging in.");
-                });
+
+                    setError("Successful Login.");
+                    navigate("/Grade"); // Redirect after login
+                } else {
+                    setError("Login failed. No token received.");
+                }
+            } else {
+                const errorData = await response.json().catch(() => ({ message: "Error Logging In." }));
+                setError(errorData?.message || "Error Logging In.");
+            }
+        } catch (error) {
+            console.error("Login failed:", error);
+            setError("Error Logging in.");
         }
     };
-
-    useEffect(() => {
-        if (email !== "") document.getElementById("email").classList.add("used");
-        if (password !== "") document.getElementById("password").classList.add("used");
-    }, [email, password]);
 
     return (
         <div className="containerbox">
@@ -109,13 +111,17 @@ function Login() {
                     <label htmlFor="rememberme" className="remember-me-label">Remember me</label>
                 </div>
                 <div>
-                    <button type="submit" className="button buttonBlue">Login</button>
+                    <button type="submit" className="button buttonBlue">Login
+                        <div className="ripples buttonRipples"><span className="ripplesCircle"></span></div>
+                    </button>
                 </div>
-                <div>
-                    <button type="button" onClick={handleRegisterClick} className="button buttonRegister">Register</button>
-                </div>
+                <p className="message" style={{ color: error === "Successful Login." ? "green" : "red" }}>{error}</p>
             </form>
-            {error && <p className="error">{error}</p>}
+            <div>
+                <button onClick={handleRegisterClick} className="button buttonBlue">Register
+                    <div className="ripples buttonRipples"><span className="ripplesCircle"></span></div>
+                </button>
+            </div>
         </div>
     );
 }

@@ -1,9 +1,9 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using QuestionInterfaceTry101.Server.Data;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Cors;
-
 
 namespace QuestionInterfaceTry101.Server
 {
@@ -13,52 +13,63 @@ namespace QuestionInterfaceTry101.Server
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection") ?? throw new InvalidOperationException("Connection string 'ApplicationDbContextConnection' not found.");
+            // Configure services
+            var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection")
+                ?? throw new InvalidOperationException("Connection string 'ApplicationDbContextConnection' not found.");
 
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
-            builder.Services.AddAuthorization();
-            builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
+            // JWT Authentication Configuration
+            var jwtSettings = builder.Configuration.GetSection("Jwt");
+            var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]);
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings["Issuer"],
+                    ValidAudience = jwtSettings["Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ClockSkew = TimeSpan.FromMinutes(1) // Add a 1-minute buffer for token expiration
+                };
+            });
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddAuthorization();
 
-
-            // Add CORS configuration
+            // CORS Configuration
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
                     builder => builder.AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader());
+                                      .AllowAnyMethod()
+                                      .AllowAnyHeader());
             });
-
-            // Add services to the container.
-            builder.Services.AddControllersWithViews();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // Middleware pipeline configuration
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
             app.UseCors("CorsPolicy");
 
-            app.UseDefaultFiles();
-            app.UseStaticFiles();
-            app.MapIdentityApi<ApplicationUser>();
-
-            app.MapPost("/logout", async (SignInManager<ApplicationUser> signInManager) =>
-            {
-                await signInManager.SignOutAsync();
-                return Results.Ok();
-            }).RequireAuthorization();
-
-            app.MapGet("/pingauth", (ClaimsPrincipal user) =>
-            {
-                var email = user.FindFirstValue(ClaimTypes.Email);
-                return Results.Json(new { Email = email });
-            }).RequireAuthorization();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             if (app.Environment.IsDevelopment())
             {
@@ -66,10 +77,7 @@ namespace QuestionInterfaceTry101.Server
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
-            app.UseAuthorization();
             app.MapControllers();
-            app.MapFallbackToFile("/index.html");
 
             app.Run();
         }
