@@ -43,7 +43,7 @@ namespace QuestionInterfaceTry101.Server
                     ValidIssuer = jwtSettings["Issuer"],
                     ValidAudience = jwtSettings["Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ClockSkew = TimeSpan.FromMinutes(1) // Add a 1-minute buffer for token expiration
+                    ClockSkew = TimeSpan.FromMinutes(1) 
                 };
             });
 

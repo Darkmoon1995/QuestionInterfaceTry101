@@ -41,10 +41,9 @@ function Login() {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log("Login response data:", data); // Log the token received
+                console.log("Login response data:", data); 
 
                 if (data.token) {
-                    // Store the token based on "Remember Me"
                     if (rememberme) {
                         localStorage.setItem('jwtToken', data.token);
                         console.log('Token saved in localStorage');
@@ -54,7 +53,7 @@ function Login() {
                     }
 
                     setError("Successful Login.");
-                    navigate("/Grade"); // Redirect after login
+                    navigate("/Grade"); 
                 } else {
                     setError("Login failed. No token received.");
                 }

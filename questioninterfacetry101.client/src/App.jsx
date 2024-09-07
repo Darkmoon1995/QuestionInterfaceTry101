@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './Pages/Home.jsx';
@@ -7,8 +8,12 @@ import Register from './Pages/Register.jsx';
 import NavBar from './Components/NavBar.jsx';
 import './App.css';
 
+function getToken() {
+    return sessionStorage.getItem('jwtToken') || localStorage.getItem('jwtToken');
+}
+
 function isAuthenticated() {
-    const token = sessionStorage.getItem('jwtToken');
+    const token = getToken();
     if (!token) return false;
 
     try {
@@ -28,7 +33,7 @@ function ProtectedRoute({ children }) {
 
 function App() {
     useEffect(() => {
-        const token = sessionStorage.getItem('jwtToken');
+        const token = getToken();
         if (!token) {
             console.log('No token found, redirecting to login');
         }

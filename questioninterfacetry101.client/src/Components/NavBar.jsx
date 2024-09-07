@@ -5,10 +5,9 @@ import LogoutLink from "../Components/LogoutLink.jsx";
 import "../Css/NavBar.css";
 
 const NavBar = () => {
-
     const navigate = useNavigate();
     const location = useLocation();
-    const currentPath = location.pathname ;
+    const currentPath = location.pathname;
 
     // Function to handle back navigation
     const handleBackClick = () => {

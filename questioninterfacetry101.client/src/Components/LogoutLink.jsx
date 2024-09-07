@@ -26,7 +26,7 @@ function LogoutLink(props) {
     };
 
     return (
-        <a href="#" onClick={handleLogout}>Logout</a>
+        <a href="#" onClick={handleLogout}>{props.children}</a>
     );
 }
 

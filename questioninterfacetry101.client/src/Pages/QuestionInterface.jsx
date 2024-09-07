@@ -48,7 +48,7 @@ const QuestionInterface = () => {
                         Number2: parseInt(q.number2, 10),
                         Operation: q.operation
                     },
-                    NumberOfOptions: 4, // This is set to 4 as a default
+                    NumberOfOptions: 4, 
                     Sct: parseInt(q.sct, 10)
                 }))
             };
@@ -59,7 +59,6 @@ const QuestionInterface = () => {
             console.log("Response from server:", response);
 
             alert('Worksheet saved successfully!');
-            // Reset the form after saving
             setQuestions([]);
             setWorksheetTitle('');
             setWorksheetFinalMessage('');
