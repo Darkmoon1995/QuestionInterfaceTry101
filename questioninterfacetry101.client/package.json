@@ -16,11 +16,14 @@
     "@mui/material": "^5.16.7",
     "axios": "^1.7.4",
     "bootstrap": "^5.3.3",
+    "glob": "^11.0.0",
+    "inflight": "^1.0.6",
     "react": "^18.2.0",
     "react-bootstrap": "^2.10.4",
     "react-dom": "^18.2.0",
     "react-modal": "^3.16.1",
-    "react-router-dom": "^6.26.1"
+    "react-router-dom": "^6.26.1",
+    "rimraf": "^6.0.1"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
