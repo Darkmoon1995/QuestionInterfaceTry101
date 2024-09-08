@@ -1,71 +1,85 @@
 import { fileURLToPath, URL } from 'node:url';
-
 import { defineConfig } from 'vite';
-import plugin from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react';
 import fs from 'fs';
 import path from 'path';
 import child_process from 'child_process';
 import { env } from 'process';
 
-const baseFolder =
-    env.APPDATA !== undefined && env.APPDATA !== ''
-        ? `${env.APPDATA}/ASP.NET/https`
-        : `${env.HOME}/.aspnet/https`;
-
-const certificateName = "questioninterfacetry101.client";
-const certFilePath = path.join(baseFolder, `${certificateName}.pem`);
-const keyFilePath = path.join(baseFolder, `${certificateName}.key`);
-
-if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
-    if (0 !== child_process.spawnSync('dotnet', [
-        'dev-certs',
-        'https',
-        '--export-path',
-        certFilePath,
-        '--format',
-        'Pem',
-        '--no-password',
-    ], { stdio: 'inherit', }).status) {
-        throw new Error("Could not create certificate.");
-    }
-}
-
+// Define the target for the API (from environment variables or fallback)
 const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}` :
     env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7226';
 
-const isProd = process.env.NODE_ENV === 'production';
+// Vite config for development and production
+export default defineConfig(({ command, mode }) => {
+    const isDevelopment = command === 'serve';
 
-// https://vitejs.dev/config/
-export default defineConfig({
-    plugins: [plugin()],
-    resolve: {
-        alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url))
+    // Only attempt to use certificates in development mode
+    let serverConfig = {};
+    if (isDevelopment) {
+        // Define the folder for certificates based on environment (Windows vs Linux/macOS)
+        const baseFolder = env.APPDATA !== undefined && env.APPDATA !== ''
+            ? `${env.APPDATA}/ASP.NET/https`
+            : `${env.HOME}/.aspnet/https`;
+
+        // The name of the certificate (matches the project name)
+        const certificateName = "questioninterfacetry101.client";
+        const certFilePath = path.join(baseFolder, `${certificateName}.pem`);
+        const keyFilePath = path.join(baseFolder, `${certificateName}.key`);
+
+        // Generate HTTPS certificates if they don't already exist
+        if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
+            if (0 !== child_process.spawnSync('dotnet', [
+                'dev-certs',
+                'https',
+                '--export-path',
+                certFilePath,
+                '--format',
+                'Pem',
+                '--no-password',
+            ], { stdio: 'inherit' }).status) {
+                throw new Error("Could not create certificate.");
+            }
         }
-    },
-    server: {
-        proxy: {
-            '^/pingauth': {
-                target,
-                secure: false
+
+        // Set server config to use HTTPS in development
+        serverConfig = {
+            https: {
+                key: fs.readFileSync(keyFilePath),
+                cert: fs.readFileSync(certFilePath),
             },
-            '^/register': {
-                target,
-                secure: false
-            },
-            '^/login': {
-                target,
-                secure: false
-            },
-            '^/logout': {
-                target,
-                secure: false
+            port: 5173,
+            proxy: {
+                '^/pingauth': { target, secure: false },
+                '^/register': { target, secure: false },
+                '^/login': { target, secure: false },
+                '^/logout': { target, secure: false },
+            }
+        };
+    } else {
+        // Production server config (without HTTPS)
+        serverConfig = {
+            port: 5173,
+            proxy: {
+                '^/pingauth': { target, secure: false },
+                '^/register': { target, secure: false },
+                '^/login': { target, secure: false },
+                '^/logout': { target, secure: false },
+            }
+        };
+    }
+
+    return {
+        plugins: [react()],
+        resolve: {
+            alias: {
+                '@': fileURLToPath(new URL('./src', import.meta.url)),
             }
         },
-        port: 5173,
-        https: !isProd && {
-            key: fs.readFileSync(keyFilePath),
-            cert: fs.readFileSync(certFilePath),
+        server: serverConfig,
+        build: {
+            outDir: 'dist', // Default production output directory
+            sourcemap: isDevelopment, // Source maps only in development for easier debugging
         }
-    }
+    };
 });
