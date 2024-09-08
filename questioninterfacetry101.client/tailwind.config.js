@@ -1,12 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
     content: [
-        './src/**/*.{js,jsx,ts,tsx,html}',  // Source files
-        './public/index.html',              // Public HTML file
-        './vercel/path0/**/*.{js,jsx,ts,tsx}',  // Vercel's deployment path (if needed)
+        './src/Components/**/*.{js,jsx}',
+        './src/Pages/**/*.{js,jsx}',
+        './src/services/**/*.{js,jsx}',
+        './public/index.html',  
     ],
     theme: {
         extend: {},
     },
     plugins: [],
 };
+
