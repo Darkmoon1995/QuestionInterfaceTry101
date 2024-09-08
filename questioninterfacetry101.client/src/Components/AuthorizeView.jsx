@@ -1,6 +1,6 @@
 import React, { useState, useEffect, createContext } from 'react';
 import { Navigate } from 'react-router-dom';
-import axiosInstance from './axiosConfig';
+import axiosInstance from '../Components/axiosConfig';
 
 const UserContext = createContext({});
 
