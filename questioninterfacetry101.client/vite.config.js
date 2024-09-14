@@ -54,7 +54,10 @@ export default defineConfig(({ command, mode }) => {
                 '^/register': { target, secure: false },
                 '^/login': { target, secure: false },
                 '^/logout': { target, secure: false },
-            }
+            },
+            hmr: {
+                overlay: false, // Disables overlay error messages but keeps hot reloading
+            },
         };
     } else {
         // Production server config (without HTTPS)

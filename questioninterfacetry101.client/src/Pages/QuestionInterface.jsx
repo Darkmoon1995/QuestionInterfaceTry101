@@ -5,6 +5,10 @@ import '../Css/QuestionInterface.css';
 import '../Css/SimpleTextBox.css';
 import '../Css/WierdDivCss.css';
 
+const getToken = () => {
+    return sessionStorage.getItem('jwtToken') || localStorage.getItem('jwtToken');
+};
+
 const QuestionInterface = () => {
     const [questions, setQuestions] = useState([]);
     const [editMode, setEditMode] = useState(false);
@@ -27,6 +31,14 @@ const QuestionInterface = () => {
 
     const handleSaveAll = async () => {
         try {
+            const token = getToken();
+
+            if (!token) {
+                console.error('No JWT token found.');
+                alert('Please log in first.');
+                return;
+            }
+
             const worksheetData = {
                 Title: {
                     Text: worksheetTitle,
@@ -48,18 +60,22 @@ const QuestionInterface = () => {
                         Number2: parseInt(q.number2, 10),
                         Operation: q.operation
                     },
-                    NumberOfOptions: 4, 
+                    NumberOfOptions: 4,
                     Sct: parseInt(q.sct, 10)
                 }))
             };
 
             console.log("Sending worksheet data to the server:", worksheetData);
 
-            const response = await axios.post('https://localhost:7226/api/Worksheet', worksheetData);
-            console.log("Response from server:", response);
+            const response = await axios.post('https://localhost:7226/api/Worksheet', worksheetData, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Add the token here
+                },
+            });
 
+            console.log("Response from server:", response);
             alert('Worksheet saved successfully!');
-            setQuestions([]);
+            setQuestions([]); // Clear questions after saving
             setWorksheetTitle('');
             setWorksheetFinalMessage('');
             setWorksheetType('');
@@ -144,6 +160,7 @@ const QuestionInterface = () => {
                 <p>
                     <button className="custom-btn BlueButton" id="Save" onClick={handleSaveAll}>Save</button>
                 </p>
+                {/* Worksheet form fields */}
                 <div className="container">
                     <label className="TextBoxlabel" htmlFor="Title">Title:</label>
                     <input
@@ -179,6 +196,7 @@ const QuestionInterface = () => {
                     </select>
                 </div>
 
+                {/* Text and Final Message Style Selection */}
                 <div className="container">
                     <label className="TextBoxlabel" htmlFor="TextStyle">Text Style:</label>
                     <select
@@ -233,126 +251,127 @@ const QuestionInterface = () => {
             <br />
             <h3>Questions</h3>
             <hr />
-            
+
+            {/* Display questions */}
             <div className="WhiteBox">
                 {questions.map(question => (
-                    
                     <div key={question.id} className="accordion-item">
                         <div className="QuestionBlackBoarder">
-                        <div className="accordion-header">
-                            <p className="p1BorderBlack">{question.id}. {question.title}</p>
-                            <p>{question.number1} {question.operation} {question.number2}</p>
+                            <div className="accordion-header">
+                                <p className="p1BorderBlack">{question.id}. {question.title}</p>
+                                <p>{question.number1} {question.operation} {question.number2}</p>
                                 <p>SCT: {question.sct}</p>
-                                    <p>Question Style: {question.TitleStyle}</p>
-                                    <p>Style Degree: {question.TitleStyleDegree}</p>
-                        </div>
-                        <div className="accordion-actions">
+                                <p>Question Style: {question.TitleStyle}</p>
+                                <p>Style Degree: {question.TitleStyleDegree}</p>
+                            </div>
+                            <div className="accordion-actions">
                                 <button className="custom-btn EditButton" onClick={() => handleEditQuestion(question.id)}>Edit</button>
                                 <button className="custom-btn RemoveQuestionButton" onClick={() => removeQuestion(question.id)}>Remove</button>
-                        </div>
+                            </div>
                         </div>
                     </div>
                 ))}
             </div>
-            
+
             <p>
                 <button className="custom-btn BlueButton" id="AddQuestion" onClick={() => setIsVisible(true)}>Add Question</button>
             </p>
 
+            {/* Modal for adding/editing questions */}
             <ReactModal
                 isOpen={isVisible}
                 onRequestClose={handleCancel}
                 className="Modal"
             >
                 <div className="WhiteBox">
-                <div className="container">
-                    <label className="TextBoxlabel" htmlFor="QuestionTitle">Question Title:</label>
-                    <input
-                        type="text"
-                        className="TextBoxinput"
-                        id="QuestionTitle"
-                        value={questionTitle}
-                        onChange={(e) => setQuestionTitle(e.target.value)}
-                    />
-                </div>
+                    <div className="container">
+                        <label className="TextBoxlabel" htmlFor="QuestionTitle">Question Title:</label>
+                        <input
+                            type="text"
+                            className="TextBoxinput"
+                            id="QuestionTitle"
+                            value={questionTitle}
+                            onChange={(e) => setQuestionTitle(e.target.value)}
+                        />
+                    </div>
 
-                <div className="container">
-                    <label className="TextBoxlabel" htmlFor="Number1">Number 1:</label>
-                    <input
-                        type="number"
-                        className="TextBoxinput"
-                        id="Number1"
-                        value={number1}
-                        onChange={(e) => setNumber1(e.target.value)}
-                    />
-                </div>
+                    <div className="container">
+                        <label className="TextBoxlabel" htmlFor="Number1">Number 1:</label>
+                        <input
+                            type="number"
+                            className="TextBoxinput"
+                            id="Number1"
+                            value={number1}
+                            onChange={(e) => setNumber1(e.target.value)}
+                        />
+                    </div>
 
-                <div className="container">
-                    <label className="TextBoxlabel" htmlFor="Operation">Operation:</label>
-                    <select
-                        className="TextBoxSelect"
-                        id="Operation"
-                        value={operation}
-                        onChange={(e) => setOperation(e.target.value)}
-                    >
-                        <option value="+">+</option>
-                        <option value="-">-</option>
-                        <option value="*">*</option>
-                        <option value="/">/</option>
-                    </select>
-                </div>
+                    <div className="container">
+                        <label className="TextBoxlabel" htmlFor="Operation">Operation:</label>
+                        <select
+                            className="TextBoxSelect"
+                            id="Operation"
+                            value={operation}
+                            onChange={(e) => setOperation(e.target.value)}
+                        >
+                            <option value="+">+</option>
+                            <option value="-">-</option>
+                            <option value="*">*</option>
+                            <option value="/">/</option>
+                        </select>
+                    </div>
 
-                <div className="container">
-                    <label className="TextBoxlabel" htmlFor="Number2">Number 2:</label>
-                    <input
-                        type="number"
-                        className="TextBoxinput"
-                        id="Number2"
-                        value={number2}
-                        onChange={(e) => setNumber2(e.target.value)}
-                    />
-                </div>
+                    <div className="container">
+                        <label className="TextBoxlabel" htmlFor="Number2">Number 2:</label>
+                        <input
+                            type="number"
+                            className="TextBoxinput"
+                            id="Number2"
+                            value={number2}
+                            onChange={(e) => setNumber2(e.target.value)}
+                        />
+                    </div>
 
-                <div className="container">
-                    <label className="TextBoxlabel" htmlFor="SCT">SCT:</label>
-                    <input
-                        type="number"
-                        className="TextBoxinput"
-                        id="SCT"
-                        value={sct}
-                        onChange={(e) => setSct(e.target.value)}
-                    />
-                </div>
+                    <div className="container">
+                        <label className="TextBoxlabel" htmlFor="SCT">SCT:</label>
+                        <input
+                            type="number"
+                            className="TextBoxinput"
+                            id="SCT"
+                            value={sct}
+                            onChange={(e) => setSct(e.target.value)}
+                        />
+                    </div>
 
-                <div className="container">
-                    <label className="TextBoxlabel" htmlFor="QuestionTitleStyle">Question Title Style:</label>
-                    <select
-                        className="TextBoxSelect"
-                        id="QuestionTitleStyle"
-                        value={questionTitleStyle}
-                        onChange={(e) => setQuestionTitleStyle(e.target.value)}
-                    >
-                        <option value="cheerful">Cheerful</option>
-                        <option value="serious">Serious</option>
-                        <option value="motivational">Motivational</option>
-                    </select>
+                    <div className="container">
+                        <label className="TextBoxlabel" htmlFor="QuestionTitleStyle">Question Title Style:</label>
+                        <select
+                            className="TextBoxSelect"
+                            id="QuestionTitleStyle"
+                            value={questionTitleStyle}
+                            onChange={(e) => setQuestionTitleStyle(e.target.value)}
+                        >
+                            <option value="cheerful">Cheerful</option>
+                            <option value="serious">Serious</option>
+                            <option value="motivational">Motivational</option>
+                        </select>
 
-                    <label className="TextBoxlabel" htmlFor="QuestionTitleStyleDegree">Style Degree:</label>
-                    <select
-                        className="TextBoxSelect"
-                        id="QuestionTitleStyleDegree"
-                        value={questionTitleStyleDegree}
-                        onChange={(e) => setQuestionTitleStyleDegree(e.target.value)}
-                    >
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                    </select>
-                </div>
+                        <label className="TextBoxlabel" htmlFor="QuestionTitleStyleDegree">Style Degree:</label>
+                        <select
+                            className="TextBoxSelect"
+                            id="QuestionTitleStyleDegree"
+                            value={questionTitleStyleDegree}
+                            onChange={(e) => setQuestionTitleStyleDegree(e.target.value)}
+                        >
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
 
-                <p>
-                    <button className="custom-btn BlueButton" onClick={handleAddQuestion}>Save</button>
-                    <button className="custom-btn RedButton" onClick={handleCancel}>Cancel</button>
+                    <p>
+                        <button className="custom-btn BlueButton" onClick={handleAddQuestion}>Save</button>
+                        <button className="custom-btn RedButton" onClick={handleCancel}>Cancel</button>
                     </p>
                 </div>
             </ReactModal>

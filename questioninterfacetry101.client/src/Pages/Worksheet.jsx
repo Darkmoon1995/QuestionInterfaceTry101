@@ -6,6 +6,10 @@ import '../Css/QuestionInterface.css';
 import '../Css/SimpleTextBox.css';
 import '../Css/WierdDivCss.css';
 
+const getToken = () => {
+    return sessionStorage.getItem('jwtToken') || localStorage.getItem('jwtToken');
+};
+
 const WorksheetDetails = () => {
     const { worksheetId } = useParams();
     const navigate = useNavigate();
@@ -33,7 +37,10 @@ const WorksheetDetails = () => {
     useEffect(() => {
         const fetchWorksheet = async () => {
             try {
-                const response = await axios.get(`https://localhost:7226/api/Worksheet/${worksheetId}`);
+                const token = getToken();
+                const response = await axios.get(`https://localhost:7226/api/Worksheet/${worksheetId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
                 const data = response.data;
                 setWorksheet(data);
                 setWorksheetTitle(data.title.text);
@@ -100,6 +107,7 @@ const WorksheetDetails = () => {
 
     const handleSaveAll = async () => {
         try {
+            const token = getToken();
             const worksheetData = {
                 ...worksheet,
                 title: { text: worksheetTitle, config: { style: textStyle, styledegree: textStyleDegree } },
@@ -122,7 +130,9 @@ const WorksheetDetails = () => {
                 })),
             };
 
-            const response = await axios.put(`https://localhost:7226/api/Worksheet/${worksheetId}`, worksheetData);
+            const response = await axios.put(`https://localhost:7226/api/Worksheet/${worksheetId}`, worksheetData, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             console.log('Response from server:', response);
             alert('Worksheet saved successfully!');
         } catch (error) {
@@ -133,7 +143,10 @@ const WorksheetDetails = () => {
 
     const handleRemoveWorksheet = async () => {
         try {
-            await axios.delete(`https://localhost:7226/api/Worksheet/${worksheetId}`);
+            const token = getToken();
+            await axios.delete(`https://localhost:7226/api/Worksheet/${worksheetId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             alert('Worksheet removed successfully!');
             navigate('/Grade');
         } catch (error) {
@@ -149,6 +162,7 @@ const WorksheetDetails = () => {
     if (!worksheet) {
         return <div>Worksheet not found</div>;
     }
+
     return (
         <div>
             <div className="SameHeight">

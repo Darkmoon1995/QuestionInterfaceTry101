@@ -131,7 +131,7 @@ namespace QuestionInterfaceTry101.Server.Controllers
             }
             catch (DbUpdateException ex)
             {
-                return StatusCode(500, "An error occurred while deleting the worksheet.");
+                return StatusCode(500, "An error occurred while deleting the worksheet." + ex);
             }
 
             return NoContent();

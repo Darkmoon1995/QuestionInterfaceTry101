@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using QuestionInterfaceTry101.Server.Data;
 using QuestionInterfaceTry101.Server.Model;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using QuestionInterfaceTry101.Server.Data;
+using System;
 
 namespace QuestionInterfaceTry101.Server.Controllers
 {
@@ -25,89 +27,69 @@ namespace QuestionInterfaceTry101.Server.Controllers
             _configuration = configuration;
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        // POST: api/Auth/Register
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] LoginModel model) // Using LoginModel for Registration
         {
-            if (model == null || string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Password))
+            if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid login details.");
+                return BadRequest(ModelState);
+            }
+
+            var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+            var result = await _userManager.CreateAsync(user, model.Password);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            return Ok("User registered successfully.");
+        }
+
+        // POST: api/Auth/Login
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginModel model) // Same model for Login
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest("Invalid login attempt.");
             }
 
             var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null) return Unauthorized();
-
-            var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-            if (!result.Succeeded) return Unauthorized();
-
             var token = GenerateJwtToken(user);
 
-            return Ok(new { token });
-        }
-
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] LoginModel model)
-        {
-            if (model == null || string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Password))
-            {
-                return BadRequest("Invalid registration details.");
-            }
-
-            var existingUser = await _userManager.FindByEmailAsync(model.Email);
-            if (existingUser != null)
-            {
-                return BadRequest("Email is already registered.");
-            }
-
-            var user = new ApplicationUser
-            {
-                UserName = model.Email,
-                Email = model.Email
-            };
-
-            var result = await _userManager.CreateAsync(user, model.Password);
-            if (result.Succeeded)
-            {
-                return Ok("User registered successfully.");
-            }
-
-            return BadRequest(result.Errors);
+            return Ok(new { Token = token });
         }
 
         private string GenerateJwtToken(ApplicationUser user)
         {
-            var jwtSettings = _configuration.GetSection("Jwt");
-            var key = Encoding.UTF8.GetBytes(jwtSettings["Key"] ?? throw new ArgumentNullException("Jwt:Key configuration is missing"));
-            var creds = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
-
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email ?? throw new ArgumentNullException(nameof(user.Email))),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id ?? throw new ArgumentNullException(nameof(user.Id))),
+                new Claim(ClaimTypes.NameIdentifier, user.Id)
             };
 
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
             var token = new JwtSecurityToken(
-                issuer: jwtSettings["Issuer"],
-                audience: jwtSettings["Audience"],
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpiryDurationInMinutes"] ?? throw new ArgumentNullException("Jwt:ExpiryDurationInMinutes configuration is missing"))),
-                signingCredentials: creds);
+                expires: DateTime.Now.AddMinutes(Convert.ToInt32(_configuration["Jwt:ExpiryDurationInMinutes"])), 
+                signingCredentials: creds
+            );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-        [HttpGet("pingauth")]
-        [Authorize]
-        public IActionResult PingAuth()
-        {
-            var email = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(email))
-            {
-                return Unauthorized();
-            }
-
-            return Ok(new { email });
         }
     }
 }

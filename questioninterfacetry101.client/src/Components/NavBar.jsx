@@ -1,28 +1,34 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import AuthorizeView, { AuthorizedUser } from "../Components/AuthorizeView.jsx";
 import LogoutLink from "../Components/LogoutLink.jsx";
 import "../Css/NavBar.css";
+import { isAuthenticated } from '../App.jsx'; 
 
 const NavBar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const currentPath = location.pathname;
 
-    // Function to handle back navigation
     const handleBackClick = () => {
         navigate(-1);
     };
+
+    useEffect(() => {
+        if (!isAuthenticated()) {
+            console.log("Not Auth");
+            navigate("/login");
+        }
+    }, [navigate]);
 
     return (
         <header className="navbar-header">
             <nav className="navbar">
                 <div className="container">
-                    <AuthorizeView>
+                    {isAuthenticated() ? (
                         <button className="navbar-brand">
-                            <LogoutLink>Logout <AuthorizedUser value="email" /></LogoutLink>
+                            <LogoutLink>Logout</LogoutLink>
                         </button>
-                    </AuthorizeView>
+                    ) : null}
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav">
                             <li className="nav-item active">

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import '../Css/LoginRegister.css';
 
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [rememberme, setRememberme] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
     const [error, setError] = useState("");
     const navigate = useNavigate();
 
@@ -13,59 +14,42 @@ function Login() {
         const { name, value, type, checked } = e.target;
         if (name === "email") setEmail(value);
         if (name === "password") setPassword(value);
-        if (name === "rememberme") setRememberme(checked);
-    };
-
-    const handleRegisterClick = () => {
-        navigate("/register");
+        if (name === "rememberMe") setRememberMe(checked);
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+    e.preventDefault();
+    if (!email || !password) {
+        setError("Please fill in all fields.");
+        return;
+    }
+    setError("");
 
-        if (!email || !password) {
-            setError("Please fill in all fields.");
-            return;
-        }
-
-        setError("");
-
-        try {
-            const response = await fetch("https://localhost:7226/api/Auth/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ email, password }),
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                console.log("Login response data:", data); 
-
-                if (data.token) {
-                    if (rememberme) {
-                        localStorage.setItem('jwtToken', data.token);
-                        console.log('Token saved in localStorage');
-                    } else {
-                        sessionStorage.setItem('jwtToken', data.token);
-                        console.log('Token saved in sessionStorage');
-                    }
-
-                    setError("Successful Login.");
-                    navigate("/Grade"); 
-                } else {
-                    setError("Login failed. No token received.");
-                }
+    try {
+        const response = await axios.post("https://localhost:7226/api/Auth/login", { email, password });
+        if (response.data.token) {
+            const token = response.data.token;
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const expirationTime = payload.exp * 1000;
+            
+            console.log("Token expiration time:", new Date(expirationTime));
+            
+            if (rememberMe) {
+                localStorage.setItem("jwtToken", token);
             } else {
-                const errorData = await response.json().catch(() => ({ message: "Error Logging In." }));
-                setError(errorData?.message || "Error Logging In.");
+                sessionStorage.setItem("jwtToken", token);
+
             }
-        } catch (error) {
-            console.error("Login failed:", error);
-            setError("Error Logging in.");
+            
+            navigate("/Grade");
+        } else {
+            setError("Login failed.");
         }
-    };
+    } catch (error) {
+        setError("Error Logging In.");
+    }
+};
+
 
     return (
         <div className="containerbox">
@@ -74,53 +58,35 @@ function Login() {
                 <div className="group">
                     <input
                         type="email"
-                        id="email"
                         name="email"
                         value={email}
                         onChange={handleChange}
                         placeholder=" "
-                        className={email ? "used" : ""}
                     />
-                    <span className="highlight"></span>
-                    <span className="bar"></span>
                     <label>Email</label>
                 </div>
                 <div className="group">
                     <input
                         type="password"
-                        id="password"
                         name="password"
                         value={password}
                         onChange={handleChange}
                         placeholder=" "
-                        className={password ? "used" : ""}
                     />
-                    <span className="highlight"></span>
-                    <span className="bar"></span>
                     <label>Password</label>
                 </div>
-                <div className="remember-me-container">
+                <div>
                     <input
                         type="checkbox"
-                        id="rememberme"
-                        name="rememberme"
-                        checked={rememberme}
+                        name="rememberMe"
+                        checked={rememberMe}
                         onChange={handleChange}
                     />
-                    <label htmlFor="rememberme" className="remember-me-label">Remember me</label>
+                    <label>Remember Me</label>
                 </div>
-                <div>
-                    <button type="submit" className="button buttonBlue">Login
-                        <div className="ripples buttonRipples"><span className="ripplesCircle"></span></div>
-                    </button>
-                </div>
-                <p className="message" style={{ color: error === "Successful Login." ? "green" : "red" }}>{error}</p>
+                <button type="submit">Login</button>
+                {error && <p>{error}</p>}
             </form>
-            <div>
-                <button onClick={handleRegisterClick} className="button buttonBlue">Register
-                    <div className="ripples buttonRipples"><span className="ripplesCircle"></span></div>
-                </button>
-            </div>
         </div>
     );
 }
