@@ -12,6 +12,7 @@ using System;
 
 namespace QuestionInterfaceTry101.Server.Controllers
 {
+    
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -29,7 +30,7 @@ namespace QuestionInterfaceTry101.Server.Controllers
 
         // POST: api/Auth/Register
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] LoginModel model) // Using LoginModel for Registration
+        public async Task<IActionResult> Register([FromBody] UserModel model) 
         {
             if (!ModelState.IsValid)
             {
@@ -49,7 +50,7 @@ namespace QuestionInterfaceTry101.Server.Controllers
 
         // POST: api/Auth/Login
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model) // Same model for Login
+        public async Task<IActionResult> Login([FromBody] UserModel model) 
         {
             if (!ModelState.IsValid)
             {

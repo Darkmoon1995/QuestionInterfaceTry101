@@ -8,6 +8,7 @@ import Register from './Pages/Register.jsx';
 import QuestionInterface from './Pages/QuestionInterface.jsx';
 import WorksheetsList from './Pages/WorksheetList.jsx';
 import WorksheetDetails from './Pages/Worksheet.jsx';
+import manageProfile from './Pages/manageProfile.jsx';
 
 import NavBar from './Components/NavBar.jsx';
 import './App.css';
@@ -53,7 +54,7 @@ function AppWithRouter() {
 
         if (!token && currentPath !== '/login' && currentPath !== '/register') {
             console.log('No token found, redirecting to login');
-            navigate('/login');
+            navigate('/register');
         }
     }, [location, navigate]);
 
@@ -62,6 +63,7 @@ function AppWithRouter() {
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/manageProfile" element={<manageProfile />} />
 
             {/* Protected Routes */}
             <Route

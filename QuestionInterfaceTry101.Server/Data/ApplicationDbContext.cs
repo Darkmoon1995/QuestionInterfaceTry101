@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using QuestionInterfaceTry101.Server.Model;
+using static QuestionInterfaceTry101.Server.Model.UserModel;
 
 namespace QuestionInterfaceTry101.Server.Data
 {
@@ -13,11 +14,13 @@ namespace QuestionInterfaceTry101.Server.Data
 
         public DbSet<WorksheetModel> Worksheets { get; set; }
         public DbSet<qusModel> qus { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
+            // Relationships and custom configurations
             builder.Entity<WorksheetModel>()
                    .OwnsOne(w => w.Title, t => { t.OwnsOne(tt => tt.Config); });
             builder.Entity<WorksheetModel>()
@@ -30,12 +33,15 @@ namespace QuestionInterfaceTry101.Server.Data
 
             builder.Entity<WorksheetModel>()
                    .HasMany(w => w.qus)
-                   .WithOne() 
+                   .WithOne()
                    .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<qusModel>().ToTable("qus");
-        }
 
+            // Additional custom user-related logic (optional)
+            builder.Entity<ApplicationUser>()
+                   .Property(u => u.ProfilePictureUrl)
+                   .HasMaxLength(256);  
+        }
     }
 }
-
