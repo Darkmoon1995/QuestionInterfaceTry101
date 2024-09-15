@@ -46,7 +46,7 @@ function Subject() {
                     <CustomButton
                         className="bg-green-600 hover:bg-green-700 text-white focus:ring-green-500"
                         value1="Science"
-                        value2="DID NOT DO IT"
+                        value2="AWW MAN"
                         value3="WorksheetList"
                         onClick={handleButtonClick}
                         icon={FlaskConical}
@@ -54,7 +54,7 @@ function Subject() {
                     <CustomButton
                         className="bg-purple-600 hover:bg-purple-700 text-white focus:ring-purple-500"
                         value1="Art"
-                        value2="DID NOT DO IT"
+                        value2="Have No Idea what to put"
                         value3="WorksheetList"
                         onClick={handleButtonClick}
                         icon={Palette}

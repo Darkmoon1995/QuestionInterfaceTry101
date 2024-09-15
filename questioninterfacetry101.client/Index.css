@@ -1,35 +1,6 @@
-:root {
-}
-
-a {
-}
-
-    a:hover {
-    }
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 body {
-}
-
-h1 {
-}
-
-button {
-}
-
-    button:hover {
-    }
-
-    button:focus,
-    button:focus-visible {
-    }
-
-@media (prefers-color-scheme: light) {
-    :root {
-    }
-
-    a:hover {
-    }
-
-    button {
-    }
 }
