@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import LogoutLink from "../Components/LogoutLink.jsx";
-import "../Css/NavBar.css";
 import { isAuthenticated } from '../App.jsx'; 
 
 const NavBar = () => {

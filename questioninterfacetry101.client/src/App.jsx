@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 
 import Home from './Pages/Home.jsx';
@@ -10,7 +11,6 @@ import WorksheetsList from './Pages/WorksheetList.jsx';
 import WorksheetDetails from './Pages/Worksheet.jsx';
 
 import NavBar from './Components/NavBar.jsx';
-import './App.css';
 
 export function getToken() {
     return sessionStorage.getItem('jwtToken') || localStorage.getItem('jwtToken');
