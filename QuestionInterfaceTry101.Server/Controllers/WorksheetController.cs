@@ -4,8 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using QuestionInterfaceTry101.Server.Data;
 using QuestionInterfaceTry101.Server.Model;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace QuestionInterfaceTry101.Server.Controllers
@@ -22,27 +20,12 @@ namespace QuestionInterfaceTry101.Server.Controllers
             _context = context;
         }
 
-        // GET: api/Worksheet
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WorksheetModel>>> GetWorksheets()
         {
-            var userEmail = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-            var isAdmin = User.IsInRole("admin");
-
-            if (isAdmin)
-            {
-                // Admin can view all worksheets
-                return await _context.Worksheets.Include(w => w.qus).ToListAsync();
-            }
-
-            // Non-admins can only view their own worksheets
-            return await _context.Worksheets
-                .Where(w => w.CreatedBy == userEmail)
-                .Include(w => w.qus)
-                .ToListAsync();
+            return await _context.Worksheets.Include(w => w.qus).ToListAsync();
         }
 
-        // GET: api/Worksheet/5
         [HttpGet("{id}")]
         public async Task<ActionResult<WorksheetModel>> GetWorksheet(int id)
         {
@@ -54,33 +37,17 @@ namespace QuestionInterfaceTry101.Server.Controllers
                 return NotFound();
             }
 
-            var userEmail = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-            var isAdmin = User.IsInRole("admin");
-
-            // Allow only admin or the creator to view the worksheet
-            if (worksheet.CreatedBy != userEmail && !isAdmin)
-            {
-                return Forbid();
-            }
-
             return worksheet;
         }
 
-        // POST: api/Worksheet
         [HttpPost]
         public async Task<ActionResult<WorksheetModel>> PostWorksheet(WorksheetModel worksheet)
         {
-            var userEmail = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-
             if (worksheet == null)
             {
                 return BadRequest("Worksheet is null.");
             }
 
-            // Set the creator email
-            worksheet.CreatedBy = userEmail;
-
-            // Auto-increment question order
             int orderCounter = 1;
             foreach (var qus in worksheet.qus)
             {
@@ -93,7 +60,6 @@ namespace QuestionInterfaceTry101.Server.Controllers
             return CreatedAtAction(nameof(GetWorksheet), new { id = worksheet.WorksheetId }, worksheet);
         }
 
-        // PUT: api/Worksheet/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutWorksheet(int id, WorksheetModel worksheet)
         {
@@ -107,19 +73,10 @@ namespace QuestionInterfaceTry101.Server.Controllers
                                                   .FirstOrDefaultAsync(w => w.WorksheetId == id);
             if (existingWorksheet == null)
             {
-                return NotFound();
+                return NotFound("Worksheet not found.");
             }
 
-            var userEmail = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-            var isAdmin = User.IsInRole("admin");
-
-            // Only allow the creator or admin to modify the worksheet
-            if (existingWorksheet.CreatedBy != userEmail && !isAdmin)
-            {
-                return Forbid();
-            }
-
-            // Update worksheet properties
+            // Update properties
             existingWorksheet.Title = worksheet.Title;
             existingWorksheet.FinalMessage = worksheet.FinalMessage;
             existingWorksheet.WorksheetType = worksheet.WorksheetType;
@@ -152,27 +109,19 @@ namespace QuestionInterfaceTry101.Server.Controllers
             return NoContent();
         }
 
-        // DELETE: api/Worksheet/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteWorksheet(int id)
         {
-            var worksheet = await _context.Worksheets.Include(w => w.qus)
-                                                     .FirstOrDefaultAsync(w => w.WorksheetId == id);
+            var worksheet = await _context.Worksheets
+                .Include(w => w.qus)
+                .FirstOrDefaultAsync(w => w.WorksheetId == id);
 
             if (worksheet == null)
             {
                 return NotFound();
             }
 
-            var userEmail = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-            var isAdmin = User.IsInRole("admin");
-
-            // Only allow the creator or admin to delete the worksheet
-            if (worksheet.CreatedBy != userEmail && !isAdmin)
-            {
-                return Forbid();
-            }
-
+            // Manually delete related questions
             _context.qus.RemoveRange(worksheet.qus);
             _context.Worksheets.Remove(worksheet);
 

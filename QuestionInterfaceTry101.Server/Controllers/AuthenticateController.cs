@@ -73,10 +73,9 @@ namespace QuestionInterfaceTry101.Server.Controllers
         {
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email), // Use email instead of ID
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Email, user.Email), // Include email claim
+                new Claim(ClaimTypes.NameIdentifier, user.Id)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
@@ -86,12 +85,11 @@ namespace QuestionInterfaceTry101.Server.Controllers
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(Convert.ToInt32(_configuration["Jwt:ExpiryDurationInMinutes"])),
+                expires: DateTime.Now.AddMinutes(Convert.ToInt32(_configuration["Jwt:ExpiryDurationInMinutes"])), 
                 signingCredentials: creds
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
     }
 }
