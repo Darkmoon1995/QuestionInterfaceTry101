@@ -26,9 +26,6 @@ namespace QuestionInterfaceTry101.Server.Model
         public FinalMessageModel FinalMessage { get; set; } = new FinalMessageModel();
         public string? WorksheetType { get; set; }
         public List<qusModel> qus { get; set; } = new List<qusModel>();
-
-        [JsonIgnore]
-        public string CreatedBy { get; set; }
     }
 
     [Owned]

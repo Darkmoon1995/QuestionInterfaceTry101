@@ -5,9 +5,6 @@ import { PlusCircle, Edit2, Trash2 } from 'lucide-react';
 const getToken = () => {
     return sessionStorage.getItem('jwtToken') || localStorage.getItem('jwtToken');
 };
-const getUserEmail = () => {
-    return sessionStorage.getItem('userEmail') || localStorage.getItem('userEmail');
-};
 
 const QuestionInterface = () => {
     const [questions, setQuestions] = useState([]);
@@ -31,25 +28,15 @@ const QuestionInterface = () => {
 
     const handleSaveAll = async () => {
         try {
-            // Retrieve JWT token and user email from session or local storage
             const token = getToken();
-            const email = getUserEmail();
-            const worksheetType = 'worksheetType';
-            // Validation: Check if token and email exist
+
             if (!token) {
                 console.error('No JWT token found.');
                 alert('Please log in first.');
                 return;
             }
-            if (!email) {
-                console.error('No user email found.');
-                alert('User email is missing.');
-                return;
-            }
 
-            // Construct the worksheet data payload
             const worksheetData = {
-                CreatedBy: email, // Ensure this is a valid email
                 Title: {
                     Text: worksheetTitle,
                     Config: { Style: textStyle, Styledegree: textStyleDegree }
@@ -58,7 +45,7 @@ const QuestionInterface = () => {
                     Text: worksheetFinalMessage,
                     Config: { Style: finalMessageStyle, Styledegree: finalMessageStyleDegree }
                 },
-                WorksheetType: worksheetType, //It is not okay To be not Thing
+                WorksheetType: worksheetType,
                 Qus: questions.map((q, index) => ({
                     Order: index + 1,
                     Title: {
@@ -66,19 +53,17 @@ const QuestionInterface = () => {
                         Config: { Style: q.TitleStyle, Styledegree: q.TitleStyleDegree }
                     },
                     Settings: {
-                        Number1: isNaN(parseInt(q.number1, 10)) ? 0 : parseInt(q.number1, 10),
-                        Number2: isNaN(parseInt(q.number2, 10)) ? 0 : parseInt(q.number2, 10),
+                        Number1: parseInt(q.number1, 10),
+                        Number2: parseInt(q.number2, 10),
                         Operation: q.operation
                     },
                     NumberOfOptions: 4,
-                    Sct: isNaN(parseInt(q.sct, 10)) ? 0 : parseInt(q.sct, 10)
+                    Sct: parseInt(q.sct, 10)
                 }))
             };
 
-            // Log the worksheet data for debugging
-            console.log("Sending worksheet data to the server:", JSON.stringify(worksheetData, null, 2));
+            console.log("Sending worksheet data to the server:", worksheetData);
 
-            // Make the POST request to the API
             const response = await fetch('https://localhost:7226/api/Worksheet', {
                 method: 'POST',
                 headers: {
@@ -88,31 +73,22 @@ const QuestionInterface = () => {
                 body: JSON.stringify(worksheetData),
             });
 
-            // Check if the response is OK
             if (!response.ok) {
-                // Log and parse the response for debugging purposes
-                const responseData = await response.json();
-                console.error('Server response error:', responseData);
-                throw new Error(`HTTP error! status: ${response.status}, response: ${JSON.stringify(responseData)}`);
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            // If everything is fine, parse the response
             const data = await response.json();
             console.log("Response from server:", data);
-
-            // Notify the user and reset form after success
             alert('Worksheet saved successfully!');
             setQuestions([]);
             setWorksheetTitle('');
             setWorksheetFinalMessage('');
             setWorksheetType('');
         } catch (error) {
-            // Handle any errors encountered during the request
             console.error('Error saving worksheet:', error);
-            alert('Failed to save worksheet. Please check your inputs or try again later.');
+            alert('Failed to save worksheet.');
         }
     };
-
 
     const handleAddQuestion = () => {
         if (editMode) {

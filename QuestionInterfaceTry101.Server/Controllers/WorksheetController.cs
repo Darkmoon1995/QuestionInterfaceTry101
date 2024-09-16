@@ -4,8 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using QuestionInterfaceTry101.Server.Data;
 using QuestionInterfaceTry101.Server.Model;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace QuestionInterfaceTry101.Server.Controllers
@@ -22,35 +20,17 @@ namespace QuestionInterfaceTry101.Server.Controllers
             _context = context;
         }
 
-        // Get worksheets: Admins get all, others get only their own
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WorksheetModel>>> GetWorksheets()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var isAdmin = User.IsInRole("Admin");
-
-            if (isAdmin)
-            {
-                return await _context.Worksheets.Include(w => w.qus).ToListAsync();
-            }
-            else
-            {
-                return await _context.Worksheets
-                                     .Where(w => w.CreatedBy == userId)
-                                     .Include(w => w.qus)
-                                     .ToListAsync();
-            }
+            return await _context.Worksheets.Include(w => w.qus).ToListAsync();
         }
 
-        // Get a specific worksheet by ID
         [HttpGet("{id}")]
         public async Task<ActionResult<WorksheetModel>> GetWorksheet(int id)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var isAdmin = User.IsInRole("Admin");
-
             var worksheet = await _context.Worksheets.Include(w => w.qus)
-                                                     .FirstOrDefaultAsync(w => w.WorksheetId == id && (w.CreatedBy == userId || isAdmin));
+                                                     .FirstOrDefaultAsync(w => w.WorksheetId == id);
 
             if (worksheet == null)
             {
@@ -60,18 +40,12 @@ namespace QuestionInterfaceTry101.Server.Controllers
             return worksheet;
         }
 
-        // Post a new worksheet
         [HttpPost]
         public async Task<ActionResult<WorksheetModel>> PostWorksheet(WorksheetModel worksheet)
         {
             if (worksheet == null)
             {
                 return BadRequest("Worksheet is null.");
-            }
-
-            if (string.IsNullOrWhiteSpace(worksheet.CreatedBy))
-            {
-                worksheet.CreatedBy = User.FindFirst(ClaimTypes.Email)?.Value;
             }
 
             int orderCounter = 1;
@@ -86,7 +60,6 @@ namespace QuestionInterfaceTry101.Server.Controllers
             return CreatedAtAction(nameof(GetWorksheet), new { id = worksheet.WorksheetId }, worksheet);
         }
 
-        // Update a worksheet
         [HttpPut("{id}")]
         public async Task<IActionResult> PutWorksheet(int id, WorksheetModel worksheet)
         {
@@ -95,13 +68,9 @@ namespace QuestionInterfaceTry101.Server.Controllers
                 return BadRequest("Worksheet ID mismatch.");
             }
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var isAdmin = User.IsInRole("Admin");
-
             var existingWorksheet = await _context.Worksheets
                                                   .Include(w => w.qus)
-                                                  .FirstOrDefaultAsync(w => w.WorksheetId == id && (w.CreatedBy == userId || isAdmin));
-
+                                                  .FirstOrDefaultAsync(w => w.WorksheetId == id);
             if (existingWorksheet == null)
             {
                 return NotFound("Worksheet not found.");
@@ -140,16 +109,12 @@ namespace QuestionInterfaceTry101.Server.Controllers
             return NoContent();
         }
 
-        // Delete a worksheet
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteWorksheet(int id)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var isAdmin = User.IsInRole("Admin");
-
             var worksheet = await _context.Worksheets
-                                          .Include(w => w.qus)
-                                          .FirstOrDefaultAsync(w => w.WorksheetId == id && (w.CreatedBy == userId || isAdmin));
+                .Include(w => w.qus)
+                .FirstOrDefaultAsync(w => w.WorksheetId == id);
 
             if (worksheet == null)
             {
