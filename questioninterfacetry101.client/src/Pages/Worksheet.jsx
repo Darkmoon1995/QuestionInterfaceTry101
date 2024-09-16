@@ -8,6 +8,10 @@ const getToken = () => {
     return sessionStorage.getItem('jwtToken') || localStorage.getItem('jwtToken');
 };
 
+const getUserEmail = () => {
+    return sessionStorage.getItem('userEmail') || localStorage.getItem('userEmail');
+};
+
 const WorksheetDetails = () => {
     const { worksheetId } = useParams();
     const navigate = useNavigate();
@@ -106,11 +110,13 @@ const WorksheetDetails = () => {
     const handleSaveAll = async () => {
         try {
             const token = getToken();
+            const email = getUserEmail();
             const worksheetData = {
                 ...worksheet,
                 title: { text: worksheetTitle, config: { style: textStyle, styledegree: textStyleDegree } },
                 finalMessage: { text: worksheetFinalMessage, config: { style: finalMessageStyle, styledegree: finalMessageStyleDegree } },
                 worksheetType,
+                createdBy: email, // Add user email to the payload
                 qus: worksheet.qus.map((q, index) => ({
                     ...q,
                     order: index + 1,

@@ -6,6 +6,10 @@ const getToken = () => {
     return sessionStorage.getItem('jwtToken') || localStorage.getItem('jwtToken');
 };
 
+const getUserEmail = () => {
+    return sessionStorage.getItem('userEmail') || localStorage.getItem('userEmail');
+};
+
 const CustomButton = ({ value1, value2, value3, className, onClick }) => {
     return (
         <button
@@ -21,18 +25,22 @@ const CustomButton = ({ value1, value2, value3, className, onClick }) => {
 
 const WorksheetList = () => {
     const [worksheets, setWorksheets] = useState([]);
+    const [userEmail, setUserEmail] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchWorksheets = async () => {
+            const token = getToken();
+            const email = getUserEmail();
+
+            if (!token) {
+                console.error('No JWT token found.');
+                return; // Prevent API call if no token
+            }
+
+            setUserEmail(email);
+
             try {
-                const token = getToken();
-
-                if (!token) {
-                    console.error('No JWT token found.');
-                    return; // Prevent API call if no token
-                }
-
                 const response = await axios.get('https://localhost:7226/api/Worksheet', {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -70,6 +78,9 @@ const WorksheetList = () => {
         <div className="min-h-screen bg-gray-900 text-gray-100 p-8">
             <div className="max-w-4xl mx-auto">
                 <h2 className="text-3xl font-bold mb-6">Worksheets</h2>
+                <div className="mb-4">
+                    <p className="text-lg text-gray-300">Logged in as: {userEmail}</p>
+                </div>
                 <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
                     {worksheets.length > 0 ? (
                         worksheets.map((worksheet) => (

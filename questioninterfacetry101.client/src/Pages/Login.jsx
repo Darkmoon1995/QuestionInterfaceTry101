@@ -35,10 +35,13 @@ function Login() {
 
                 console.log("Token expiration time:", new Date(expirationTime));
 
+                // Store token and email based on rememberMe flag
                 if (rememberMe) {
                     localStorage.setItem("jwtToken", token);
+                    localStorage.setItem("userEmail", email);
                 } else {
                     sessionStorage.setItem("jwtToken", token);
+                    sessionStorage.setItem("userEmail", email);
                 }
 
                 navigate("/Grade");

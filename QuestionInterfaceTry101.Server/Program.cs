@@ -4,13 +4,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using QuestionInterfaceTry101.Server.Data;
 using QuestionInterfaceTry101.Server.Model;
+using QuestionInterfaceTry101.Server.ProgramCsCleaner;
+using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace QuestionInterfaceTry101.Server
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -47,7 +50,7 @@ namespace QuestionInterfaceTry101.Server
                     IssuerSigningKey = new SymmetricSecurityKey(key) // Use the key from config
                 };
 
-                // Enable logging for JWT validation failures
+                // Enable logging for JWT validation failures and role injection
                 options.Events = new JwtBearerEvents
                 {
                     OnAuthenticationFailed = context =>
@@ -55,10 +58,22 @@ namespace QuestionInterfaceTry101.Server
                         Console.WriteLine($"Token validation failed: {context.Exception.Message}");
                         return Task.CompletedTask;
                     },
-                    OnTokenValidated = context =>
+                    OnTokenValidated = async context =>
                     {
+                        var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<ApplicationUser>>();
+                        var claimsIdentity = context.Principal?.Identity as ClaimsIdentity;
+                        var user = await userManager.FindByIdAsync(claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+                        if (user != null)
+                        {
+                            var roles = await userManager.GetRolesAsync(user);
+                            foreach (var role in roles)
+                            {
+                                claimsIdentity?.AddClaim(new Claim(ClaimTypes.Role, role));
+                            }
+                        }
+
                         Console.WriteLine("Token validated successfully.");
-                        return Task.CompletedTask;
                     }
                 };
             });
@@ -97,6 +112,13 @@ namespace QuestionInterfaceTry101.Server
 
             app.UseAuthentication(); // Authentication middleware
             app.UseAuthorization();  // Authorization middleware
+
+            // Seed roles and admin user
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                await DatabaseSeeder.SeedRolesAndAdminUser(services); // Seed admin user and roles
+            }
 
             app.MapControllers();
 
