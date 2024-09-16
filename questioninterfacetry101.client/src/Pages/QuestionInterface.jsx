@@ -2,19 +2,22 @@ import React, { useState } from 'react';
 import ReactModal from 'react-modal';
 import { PlusCircle, Edit2, Trash2 } from 'lucide-react';
 
+// Helper function to get JWT token from session or local storage
 const getToken = () => {
     return sessionStorage.getItem('jwtToken') || localStorage.getItem('jwtToken');
 };
 
 const QuestionInterface = () => {
-    const [questions, setQuestions] = useState([]);
-    const [editMode, setEditMode] = useState(false);
-    const [currentQuestionId, setCurrentQuestionId] = useState(null);
-    const [number1, setNumber1] = useState('');
-    const [number2, setNumber2] = useState('');
-    const [sct, setSct] = useState('');
-    const [operation, setOperation] = useState('+');
-    const [isVisible, setIsVisible] = useState(false);
+    const [questions, setQuestions] = useState([]); // List of questions
+    const [editMode, setEditMode] = useState(false); // Toggle between add/edit modes
+    const [currentQuestionId, setCurrentQuestionId] = useState(null); // ID of the question being edited
+    const [number1, setNumber1] = useState(''); // Number1 input for the question
+    const [number2, setNumber2] = useState(''); // Number2 input for the question
+    const [sct, setSct] = useState(''); // SCT input
+    const [operation, setOperation] = useState('+'); // Operation for the question
+    const [isVisible, setIsVisible] = useState(false); // Modal visibility for adding/editing questions
+
+    // Worksheet metadata
     const [worksheetTitle, setWorksheetTitle] = useState('');
     const [worksheetFinalMessage, setWorksheetFinalMessage] = useState('');
     const [worksheetType, setWorksheetType] = useState('');
@@ -26,6 +29,7 @@ const QuestionInterface = () => {
     const [questionTitleStyle, setQuestionTitleStyle] = useState('cheerful');
     const [questionTitleStyleDegree, setQuestionTitleStyleDegree] = useState('1');
 
+    // Save worksheet with questions
     const handleSaveAll = async () => {
         try {
             const token = getToken();
@@ -33,6 +37,18 @@ const QuestionInterface = () => {
             if (!token) {
                 console.error('No JWT token found.');
                 alert('Please log in first.');
+                return;
+            }
+
+            // Validate that at least one question exists
+            if (questions.length === 0) {
+                alert('Please add at least one question to the worksheet.');
+                return;
+            }
+            const worksheetType = '1';
+            // Validate that required fields are not empty
+            if (!worksheetTitle || !worksheetFinalMessage || !worksheetType) {
+                alert('Please fill out all required fields.');
                 return;
             }
 
@@ -80,7 +96,7 @@ const QuestionInterface = () => {
             const data = await response.json();
             console.log("Response from server:", data);
             alert('Worksheet saved successfully!');
-            setQuestions([]);
+            setQuestions([]); // Clear the form after saving
             setWorksheetTitle('');
             setWorksheetFinalMessage('');
             setWorksheetType('');
@@ -90,8 +106,10 @@ const QuestionInterface = () => {
         }
     };
 
+    // Add or edit a question
     const handleAddQuestion = () => {
         if (editMode) {
+            // Edit existing question
             setQuestions(questions.map(q =>
                 q.id === currentQuestionId
                     ? {
@@ -107,6 +125,7 @@ const QuestionInterface = () => {
                     : q
             ));
         } else {
+            // Add a new question
             const newQuestion = {
                 id: questions.length + 1,
                 number1,
@@ -119,6 +138,11 @@ const QuestionInterface = () => {
             };
             setQuestions([...questions, newQuestion]);
         }
+        resetFormState(); // Reset the form
+    };
+
+    // Reset form fields and close the modal
+    const resetFormState = () => {
         setEditMode(false);
         setCurrentQuestionId(null);
         setNumber1('');
@@ -128,16 +152,12 @@ const QuestionInterface = () => {
         setIsVisible(false);
     };
 
+    // Cancel the add/edit operation and reset form state
     const handleCancel = () => {
-        setEditMode(false);
-        setCurrentQuestionId(null);
-        setNumber1('');
-        setNumber2('');
-        setSct('');
-        setQuestionTitle('');
-        setIsVisible(false);
+        resetFormState();
     };
 
+    // Populate form fields for editing a question
     const handleEditQuestion = (id) => {
         const question = questions.find(q => q.id === id);
         if (question) {
@@ -150,10 +170,11 @@ const QuestionInterface = () => {
             setQuestionTitle(question.title);
             setQuestionTitleStyle(question.TitleStyle);
             setQuestionTitleStyleDegree(question.TitleStyleDegree);
-            setIsVisible(true);
+            setIsVisible(true); // Show modal for editing
         }
     };
 
+    // Remove a question by its ID
     const removeQuestion = (id) => {
         setQuestions(questions.filter(q => q.id !== id));
     };

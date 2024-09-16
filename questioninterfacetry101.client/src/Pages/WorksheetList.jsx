@@ -30,7 +30,7 @@ const WorksheetList = () => {
 
                 if (!token) {
                     console.error('No JWT token found.');
-                    return; // Prevent API call if no token
+                    return;
                 }
 
                 const response = await axios.get('https://localhost:7226/api/Worksheet', {
@@ -44,6 +44,7 @@ const WorksheetList = () => {
                 console.error('Error fetching worksheets:', error);
             }
         };
+
 
         fetchWorksheets();
     }, []);

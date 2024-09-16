@@ -4,6 +4,7 @@ import axios from 'axios';
 import ReactModal from 'react-modal';
 import { Edit2, Trash2, Plus, Save, X } from 'lucide-react';
 
+// Get JWT token from sessionStorage or localStorage
 const getToken = () => {
     return sessionStorage.getItem('jwtToken') || localStorage.getItem('jwtToken');
 };
@@ -11,16 +12,17 @@ const getToken = () => {
 const WorksheetDetails = () => {
     const { worksheetId } = useParams();
     const navigate = useNavigate();
-    const [worksheet, setWorksheet] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [visible, setVisible] = useState(false);
-    const [number1, setNumber1] = useState('');
-    const [number2, setNumber2] = useState('');
-    const [sct, setSct] = useState('');
-    const [operation, setOperation] = useState('+');
-    const [degree, setDegree] = useState('1');
-    const [editingQuestion, setEditingQuestion] = useState(null);
+    const [worksheet, setWorksheet] = useState(null); // Worksheet data
+    const [loading, setLoading] = useState(true); // Loading state
+    const [visible, setVisible] = useState(false); // Modal visibility state
+    const [number1, setNumber1] = useState(''); // Question number1 field
+    const [number2, setNumber2] = useState(''); // Question number2 field
+    const [sct, setSct] = useState(''); // SCT field
+    const [operation, setOperation] = useState('+'); // Operation type
+    const [degree, setDegree] = useState('1'); // Degree level
+    const [editingQuestion, setEditingQuestion] = useState(null); // Editing state for questions
 
+    // Worksheet metadata state
     const [worksheetTitle, setWorksheetTitle] = useState('');
     const [worksheetFinalMessage, setWorksheetFinalMessage] = useState('');
     const [worksheetType, setWorksheetType] = useState('');
@@ -32,6 +34,7 @@ const WorksheetDetails = () => {
     const [questionTitleStyle, setQuestionTitleStyle] = useState('cheerful');
     const [questionTitleStyleDegree, setQuestionTitleStyleDegree] = useState('1');
 
+    // Fetch worksheet details on load
     useEffect(() => {
         const fetchWorksheet = async () => {
             try {
@@ -40,7 +43,7 @@ const WorksheetDetails = () => {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const data = response.data;
-                setWorksheet(data);
+                setWorksheet(data); // Set worksheet data
                 setWorksheetTitle(data.title.text);
                 setWorksheetFinalMessage(data.finalMessage.text);
                 setWorksheetType(data.worksheetType);
@@ -54,6 +57,7 @@ const WorksheetDetails = () => {
         fetchWorksheet();
     }, [worksheetId]);
 
+    // Add or update question in worksheet
     const handleAddQuestion = () => {
         const newQuestion = {
             order: editingQuestion !== null ? editingQuestion : worksheet.qus.length + 1,
@@ -71,6 +75,7 @@ const WorksheetDetails = () => {
             }
         };
 
+        // Update question list in worksheet
         const updatedQuestions = editingQuestion !== null
             ? worksheet.qus.map((question) =>
                 question.order === editingQuestion ? newQuestion : question
@@ -78,13 +83,10 @@ const WorksheetDetails = () => {
             : [...worksheet.qus, newQuestion];
 
         setWorksheet({ ...worksheet, qus: updatedQuestions });
-        clearModalState();
+        clearModalState(); // Reset modal form state
     };
 
-    const handleCancel = () => {
-        clearModalState();
-    };
-
+    // Clear modal state after adding/editing a question
     const clearModalState = () => {
         setNumber1('');
         setNumber2('');
@@ -98,11 +100,13 @@ const WorksheetDetails = () => {
         setVisible(false);
     };
 
+    // Remove a question from the worksheet
     const removeQuestion = (order) => {
         const updatedQuestions = worksheet.qus.filter((q) => q.order !== order);
         setWorksheet({ ...worksheet, qus: updatedQuestions });
     };
 
+    // Save all worksheet changes (PUT request)
     const handleSaveAll = async () => {
         try {
             const token = getToken();
@@ -128,6 +132,7 @@ const WorksheetDetails = () => {
                 })),
             };
 
+            // Make the API call to update the worksheet
             const response = await axios.put(`https://localhost:7226/api/Worksheet/${worksheetId}`, worksheetData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -139,6 +144,7 @@ const WorksheetDetails = () => {
         }
     };
 
+    // Delete the worksheet (DELETE request)
     const handleRemoveWorksheet = async () => {
         try {
             const token = getToken();
@@ -146,17 +152,19 @@ const WorksheetDetails = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             alert('Worksheet removed successfully!');
-            navigate('/Grade');
+            navigate('/Grade'); // Navigate back to the Grade page after deletion
         } catch (error) {
             console.error('Error removing worksheet:', error);
             alert('Failed to remove worksheet.');
         }
     };
 
+    // Render loading screen if data is still being fetched
     if (loading) {
         return <div className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center">Loading...</div>;
     }
 
+    // If worksheet data is not found
     if (!worksheet) {
         return <div className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center">Worksheet not found</div>;
     }

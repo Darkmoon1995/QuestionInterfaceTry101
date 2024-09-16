@@ -22,6 +22,10 @@ namespace QuestionInterfaceTry101.Server.Model
         [Required]
         public int Level { get; set; }
 
+        [Required]
+        [JsonIgnore]
+        public string CreatedBy { get; set; } 
+
         public TitleModel Title { get; set; } = new TitleModel();
         public FinalMessageModel FinalMessage { get; set; } = new FinalMessageModel();
         public string? WorksheetType { get; set; }
