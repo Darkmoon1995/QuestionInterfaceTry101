@@ -22,7 +22,7 @@ function Home() {
         let url = '';
 
         if (path === 'contact') {
-            url = '/Grade/subject';
+            url = '/subject';
         } else {
             url = `/${path}`;
         }

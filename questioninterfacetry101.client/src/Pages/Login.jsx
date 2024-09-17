@@ -30,25 +30,24 @@ function Login() {
             const response = await axios.post("https://localhost:7226/api/Auth/login", { email, password });
             if (response.data.token) {
                 const token = response.data.token;
-
-                // Decode JWT token to extract roles and expiration time
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                const expirationTime = payload.exp * 1000;
-                const roles = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || [];
-
-                console.log("Token expiration time:", new Date(expirationTime));
-                console.log("User roles:", roles);
+                const username = response.data.Username;
+                const profilePicture = response.data.ProfilePicture;
+                const roles = response.data.Role;
 
                 if (rememberMe) {
                     localStorage.setItem("jwtToken", token);
+                    localStorage.setItem("username", username);
+                    localStorage.setItem("profilePicture", profilePicture);
                     localStorage.setItem("roles", JSON.stringify(roles));
                 } else {
                     sessionStorage.setItem("jwtToken", token);
+                    sessionStorage.setItem("username", username);
+                    sessionStorage.setItem("profilePicture", profilePicture);
                     sessionStorage.setItem("roles", JSON.stringify(roles));
                 }
 
                 // Navigate to a different route after login, e.g., "/Grade"
-                navigate("/Grade");
+                navigate("/");
             } else {
                 setError("Login failed.");
             }

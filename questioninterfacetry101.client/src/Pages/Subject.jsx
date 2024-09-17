@@ -23,7 +23,7 @@ function Subject() {
         let url = '';
 
         if (path === 'WorksheetList') {
-            url = '/Grade/Subject/WorksheetList';
+            url = '/Subject/WorksheetList';
         } else {
             url = `/${path}`;
         }

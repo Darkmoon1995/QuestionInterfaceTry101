@@ -50,9 +50,9 @@ const WorksheetList = () => {
 
     const handleButtonClick = (worksheetId) => {
         if (worksheetId === -1) {
-            navigate(`/Grade/Subject/WorksheetList/New`);
+            navigate(`/Subject/WorksheetList/New`);
         } else {
-            navigate(`/Grade/Subject/WorksheetList/${worksheetId}`);
+            navigate(`/Subject/WorksheetList/${worksheetId}`);
         }
     };
 

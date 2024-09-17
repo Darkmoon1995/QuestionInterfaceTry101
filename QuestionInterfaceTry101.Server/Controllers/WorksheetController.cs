@@ -26,23 +26,37 @@ namespace QuestionInterfaceTry101.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WorksheetModel>>> GetWorksheets()
         {
-            // Get the current user's email from the JWT claims
-            var userEmail = User.FindFirstValue(ClaimTypes.Email);
-            // Return only the worksheets owned by the current user
-            return await _context.Worksheets
-                                 .Where(w => w.OwnerEmail == userEmail)
-                                 .Include(w => w.qus)
-                                 .ToListAsync();
+            // Check if the user is in the Admin role
+            var isAdmin = User.IsInRole("Admin");
+
+            if (isAdmin)
+            {
+                // If the user is an Admin, return all worksheets
+                return await _context.Worksheets.Include(w => w.qus).ToListAsync();
+            }
+            else
+            {
+                // Get the current user's email from the JWT claims
+                var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+                // Return only the worksheets owned by the current user
+                return await _context.Worksheets
+                                     .Where(w => w.OwnerEmail == userEmail)
+                                     .Include(w => w.qus)
+                                     .ToListAsync();
+            }
         }
 
         // GET: api/Worksheet/5
         [HttpGet("{id}")]
         public async Task<ActionResult<WorksheetModel>> GetWorksheet(int id)
         {
+            var isAdmin = User.IsInRole("Admin");
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
+            // Admin can access any worksheet; regular users can only access their own
             var worksheet = await _context.Worksheets.Include(w => w.qus)
-                                                     .FirstOrDefaultAsync(w => w.WorksheetId == id && w.OwnerEmail == userEmail);
+                                                     .FirstOrDefaultAsync(w => w.WorksheetId == id && (isAdmin || w.OwnerEmail == userEmail));
 
             if (worksheet == null)
             {
@@ -95,9 +109,11 @@ namespace QuestionInterfaceTry101.Server.Controllers
             }
 
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            var isAdmin = User.IsInRole("Admin");
+
             var existingWorksheet = await _context.Worksheets
                                                   .Include(w => w.qus)
-                                                  .FirstOrDefaultAsync(w => w.WorksheetId == id && w.OwnerEmail == userEmail);
+                                                  .FirstOrDefaultAsync(w => w.WorksheetId == id && (isAdmin || w.OwnerEmail == userEmail));
 
             if (existingWorksheet == null)
             {
@@ -142,10 +158,11 @@ namespace QuestionInterfaceTry101.Server.Controllers
         public async Task<IActionResult> DeleteWorksheet(int id)
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            var isAdmin = User.IsInRole("Admin");
 
             var worksheet = await _context.Worksheets
                                           .Include(w => w.qus)
-                                          .FirstOrDefaultAsync(w => w.WorksheetId == id && w.OwnerEmail == userEmail);
+                                          .FirstOrDefaultAsync(w => w.WorksheetId == id && (isAdmin || w.OwnerEmail == userEmail));
 
             if (worksheet == null)
             {

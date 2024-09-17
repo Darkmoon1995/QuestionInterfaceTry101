@@ -9,6 +9,7 @@ import Register from './Pages/Register.jsx';
 import QuestionInterface from './Pages/QuestionInterface.jsx';
 import WorksheetsList from './Pages/WorksheetList.jsx';
 import WorksheetDetails from './Pages/Worksheet.jsx';
+import UserDetailsPage from './Pages/UserDetailsPage.jsx';
 
 import NavBar from './Components/NavBar.jsx';
 
@@ -70,11 +71,12 @@ function AppWithRouter() {
                     <ProtectedRoute>
                         <NavBar />
                         <Routes>
-                            <Route path="/Grade" element={<Home />} />
-                            <Route path="/Grade/Subject" element={<Subject />} />
-                            <Route path="/Grade/Subject/WorksheetList/New" element={<QuestionInterface />} />
-                            <Route path="/Grade/Subject/WorksheetList" element={<WorksheetsList />} />
-                            <Route path="/Grade/Subject/WorksheetList/:worksheetId" element={<WorksheetDetails />} />
+                            <Route path="/ProfileManager" element={<UserDetailsPage />} />
+                            <Route path="/" element={<Home />} />
+                            <Route path="/Subject" element={<Subject />} />
+                            <Route path="/Subject/WorksheetList/New" element={<QuestionInterface />} />
+                            <Route path="/Subject/WorksheetList" element={<WorksheetsList />} />
+                            <Route path="/Subject/WorksheetList/:worksheetId" element={<WorksheetDetails />} />
                         </Routes>
                     </ProtectedRoute>
                 }
