@@ -28,15 +28,14 @@ const QuestionInterface = () => {
 
     const handleSaveAll = async () => {
         try {
-            const token = getToken();
-
+            const token = getToken(); // Get JWT token from session/local storage
             if (!token) {
-                console.error('No JWT token found.');
                 alert('Please log in first.');
                 return;
             }
 
             const worksheetData = {
+                OwnerEmail: 'Darkmoonmasih@gmail.com',
                 Title: {
                     Text: worksheetTitle,
                     Config: { Style: textStyle, Styledegree: textStyleDegree }
@@ -62,24 +61,27 @@ const QuestionInterface = () => {
                 }))
             };
 
-            console.log("Sending worksheet data to the server:", worksheetData);
+            console.log('Worksheet Data:', worksheetData); // Log the data to check what is sent
 
             const response = await fetch('https://localhost:7226/api/Worksheet', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${token}` // Pass JWT token in Authorization header
                 },
                 body: JSON.stringify(worksheetData),
             });
 
             if (!response.ok) {
+                const errorDetails = await response.text(); // Log any error details
+                console.error('Error response from server:', errorDetails);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
-            console.log("Response from server:", data);
             alert('Worksheet saved successfully!');
+
+            // Reset all states after successful save
             setQuestions([]);
             setWorksheetTitle('');
             setWorksheetFinalMessage('');
@@ -91,34 +93,26 @@ const QuestionInterface = () => {
     };
 
     const handleAddQuestion = () => {
+        const newQuestion = {
+            id: editMode ? currentQuestionId : questions.length + 1,
+            number1: parseInt(number1, 10) || 0,
+            number2: parseInt(number2, 10) || 0,
+            sct: parseInt(sct, 10) || 0,
+            operation,
+            title: questionTitle,
+            TitleStyle: questionTitleStyle,
+            TitleStyleDegree: questionTitleStyleDegree
+        };
+
         if (editMode) {
             setQuestions(questions.map(q =>
-                q.id === currentQuestionId
-                    ? {
-                        ...q,
-                        number1,
-                        number2,
-                        sct,
-                        operation,
-                        title: questionTitle,
-                        TitleStyle: questionTitleStyle,
-                        TitleStyleDegree: questionTitleStyleDegree
-                    }
-                    : q
+                q.id === currentQuestionId ? newQuestion : q
             ));
         } else {
-            const newQuestion = {
-                id: questions.length + 1,
-                number1,
-                number2,
-                sct,
-                operation,
-                title: questionTitle,
-                TitleStyle: questionTitleStyle,
-                TitleStyleDegree: questionTitleStyleDegree
-            };
             setQuestions([...questions, newQuestion]);
         }
+
+        // Reset question-related state after adding/updating
         setEditMode(false);
         setCurrentQuestionId(null);
         setNumber1('');
@@ -157,7 +151,6 @@ const QuestionInterface = () => {
     const removeQuestion = (id) => {
         setQuestions(questions.filter(q => q.id !== id));
     };
-
     return (
         <div className="min-h-screen bg-gray-900 text-gray-100 p-8">
             <div className="max-w-4xl mx-auto">

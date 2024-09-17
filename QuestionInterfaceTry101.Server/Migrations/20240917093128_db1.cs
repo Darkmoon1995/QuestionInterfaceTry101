@@ -65,7 +65,8 @@ namespace QuestionInterfaceTry101.Server.Migrations
                     FinalMessage_Text = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FinalMessage_Config_Style = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FinalMessage_Config_Styledegree = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    WorksheetType = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    WorksheetType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OwnerEmail = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {

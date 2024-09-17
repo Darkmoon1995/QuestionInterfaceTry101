@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using QuestionInterfaceTry101.Server.Data;
 using QuestionInterfaceTry101.Server.Model;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace QuestionInterfaceTry101.Server.Controllers
@@ -20,26 +22,37 @@ namespace QuestionInterfaceTry101.Server.Controllers
             _context = context;
         }
 
+        // GET: api/Worksheet
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WorksheetModel>>> GetWorksheets()
         {
-            return await _context.Worksheets.Include(w => w.qus).ToListAsync();
+            // Get the current user's email from the JWT claims
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            // Return only the worksheets owned by the current user
+            return await _context.Worksheets
+                                 .Where(w => w.OwnerEmail == userEmail)
+                                 .Include(w => w.qus)
+                                 .ToListAsync();
         }
 
+        // GET: api/Worksheet/5
         [HttpGet("{id}")]
         public async Task<ActionResult<WorksheetModel>> GetWorksheet(int id)
         {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
             var worksheet = await _context.Worksheets.Include(w => w.qus)
-                                                     .FirstOrDefaultAsync(w => w.WorksheetId == id);
+                                                     .FirstOrDefaultAsync(w => w.WorksheetId == id && w.OwnerEmail == userEmail);
 
             if (worksheet == null)
             {
-                return NotFound();
+                return NotFound("Worksheet not found or you do not have permission to access it.");
             }
 
             return worksheet;
         }
 
+        // POST: api/Worksheet
         [HttpPost]
         public async Task<ActionResult<WorksheetModel>> PostWorksheet(WorksheetModel worksheet)
         {
@@ -48,6 +61,18 @@ namespace QuestionInterfaceTry101.Server.Controllers
                 return BadRequest("Worksheet is null.");
             }
 
+            // Get the email from the authenticated user's claims
+            var ownerEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+
+            if (string.IsNullOrEmpty(ownerEmail))
+            {
+                return Unauthorized("Could not determine the user's email.");
+            }
+
+            // Assign the authenticated user's email as the OwnerEmail
+            worksheet.OwnerEmail = ownerEmail;
+
+            // Set question order
             int orderCounter = 1;
             foreach (var qus in worksheet.qus)
             {
@@ -60,6 +85,7 @@ namespace QuestionInterfaceTry101.Server.Controllers
             return CreatedAtAction(nameof(GetWorksheet), new { id = worksheet.WorksheetId }, worksheet);
         }
 
+        // PUT: api/Worksheet/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutWorksheet(int id, WorksheetModel worksheet)
         {
@@ -68,12 +94,14 @@ namespace QuestionInterfaceTry101.Server.Controllers
                 return BadRequest("Worksheet ID mismatch.");
             }
 
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
             var existingWorksheet = await _context.Worksheets
                                                   .Include(w => w.qus)
-                                                  .FirstOrDefaultAsync(w => w.WorksheetId == id);
+                                                  .FirstOrDefaultAsync(w => w.WorksheetId == id && w.OwnerEmail == userEmail);
+
             if (existingWorksheet == null)
             {
-                return NotFound("Worksheet not found.");
+                return NotFound("Worksheet not found or you do not have permission to edit it.");
             }
 
             // Update properties
@@ -109,16 +137,19 @@ namespace QuestionInterfaceTry101.Server.Controllers
             return NoContent();
         }
 
+        // DELETE: api/Worksheet/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteWorksheet(int id)
         {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
             var worksheet = await _context.Worksheets
-                .Include(w => w.qus)
-                .FirstOrDefaultAsync(w => w.WorksheetId == id);
+                                          .Include(w => w.qus)
+                                          .FirstOrDefaultAsync(w => w.WorksheetId == id && w.OwnerEmail == userEmail);
 
             if (worksheet == null)
             {
-                return NotFound();
+                return NotFound("Worksheet not found or you do not have permission to delete it.");
             }
 
             // Manually delete related questions
@@ -131,7 +162,7 @@ namespace QuestionInterfaceTry101.Server.Controllers
             }
             catch (DbUpdateException ex)
             {
-                return StatusCode(500, "An error occurred while deleting the worksheet." + ex);
+                return StatusCode(500, "An error occurred while deleting the worksheet: " + ex.Message);
             }
 
             return NoContent();

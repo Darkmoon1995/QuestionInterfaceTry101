@@ -90,7 +90,7 @@ const WorksheetList = () => {
                         value1="Create New Worksheet"
                         value2="Click here to create a new worksheet"
                         value3="New"
-                        onClick={() => handleButtonClick(-1)}
+                        onClick={() => handleButtonClick(-1)} // Always allow anyone to create new worksheet
                     />
                 </div>
             </div>

@@ -12,7 +12,7 @@ using QuestionInterfaceTry101.Server.Data;
 namespace QuestionInterfaceTry101.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240825163114_db1")]
+    [Migration("20240917093128_db1")]
     partial class db1
     {
         /// <inheritdoc />
@@ -236,6 +236,10 @@ namespace QuestionInterfaceTry101.Server.Migrations
 
                     b.Property<int>("Number")
                         .HasColumnType("int");
+
+                    b.Property<string>("OwnerEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SkillId")
                         .HasColumnType("int");

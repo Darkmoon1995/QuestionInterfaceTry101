@@ -234,6 +234,10 @@ namespace QuestionInterfaceTry101.Server.Migrations
                     b.Property<int>("Number")
                         .HasColumnType("int");
 
+                    b.Property<string>("OwnerEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("SkillId")
                         .HasColumnType("int");
 
