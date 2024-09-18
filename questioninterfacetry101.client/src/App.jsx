@@ -10,6 +10,8 @@ import QuestionInterface from './Pages/QuestionInterface.jsx';
 import WorksheetsList from './Pages/WorksheetList.jsx';
 import WorksheetDetails from './Pages/Worksheet.jsx';
 import UserDetailsPage from './Pages/UserDetailsPage.jsx';
+import AdminWorksheets from './Pages/AdminWorksheets.jsx';
+
 
 import NavBar from './Components/NavBar.jsx';
 
@@ -72,6 +74,7 @@ function AppWithRouter() {
                         <NavBar />
                         <Routes>
                             <Route path="/ProfileManager" element={<UserDetailsPage />} />
+                            <Route path="/AdminWorksheets" element={<AdminWorksheets />} />
                             <Route path="/" element={<Home />} />
                             <Route path="/Subject" element={<Subject />} />
                             <Route path="/Subject/WorksheetList/New" element={<QuestionInterface />} />

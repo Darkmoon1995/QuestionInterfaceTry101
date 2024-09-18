@@ -4,12 +4,12 @@
     {
         public string Email { get; set; }
         public string Password { get; set; }
-        public string Role { get; set; } = "User"; // Default role is "User"
+        public string Role { get; set; } = "User"; 
     }
 
     public class RegisterModel : LoginModel
     {
-        public string DisplayName { get; set; } // Username
-        public string? ProfilePictureBase64 { get; set; } // Base64 string for profile picture
+        public string? DisplayName { get; set; } 
+        public string? ProfilePictureBase64 { get; set; }
     }
 }

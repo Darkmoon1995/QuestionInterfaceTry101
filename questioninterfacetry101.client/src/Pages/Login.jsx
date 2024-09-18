@@ -11,48 +11,43 @@ function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
+    // Handle input change
     const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
+        const { name, value } = e.target;
         if (name === "email") setEmail(value);
         if (name === "password") setPassword(value);
-        if (name === "rememberMe") setRememberMe(checked);
+        if (name === "rememberMe") setRememberMe(e.target.checked);
     };
 
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!email || !password) {
             setError("Please fill in all fields.");
             return;
         }
-        setError("");
+        setError(""); // Clear any previous error
 
         try {
             const response = await axios.post("https://localhost:7226/api/Auth/login", { email, password });
-            if (response.data.token) {
-                const token = response.data.token;
-                const username = response.data.Username;
-                const profilePicture = response.data.ProfilePicture;
-                const roles = response.data.Role;
+            const { token, Username, ProfilePicture, Role } = response.data;
 
-                if (rememberMe) {
-                    localStorage.setItem("jwtToken", token);
-                    localStorage.setItem("username", username);
-                    localStorage.setItem("profilePicture", profilePicture);
-                    localStorage.setItem("roles", JSON.stringify(roles));
-                } else {
-                    sessionStorage.setItem("jwtToken", token);
-                    sessionStorage.setItem("username", username);
-                    sessionStorage.setItem("profilePicture", profilePicture);
-                    sessionStorage.setItem("roles", JSON.stringify(roles));
-                }
+            if (token) {
+                // Store user data in either local or session storage
+                const storage = rememberMe ? localStorage : sessionStorage;
+                storage.setItem("jwtToken", token);
+                storage.setItem("Username", Username);
+                storage.setItem("email", email); // Add email to storage
+                storage.setItem("ProfilePicture", ProfilePicture);
+                storage.setItem("roles", JSON.stringify(Role));
 
-                // Navigate to a different route after login, e.g., "/Grade"
+                // Redirect user after successful login
                 navigate("/");
             } else {
-                setError("Login failed.");
+                setError("Login failed. Please try again.");
             }
         } catch (error) {
-            setError("Error Logging In.");
+            setError("Error logging in. Please check your credentials.");
         }
     };
 

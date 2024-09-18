@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using QuestionInterfaceTry101.Server.Data;
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace QuestionInterfaceTry101.Server.Controllers
 {
@@ -46,8 +47,8 @@ namespace QuestionInterfaceTry101.Server.Controllers
             {
                 UserName = model.Email,
                 Email = model.Email,
-                DisplayName = model.DisplayName,
-                ProfilePicture = model.ProfilePictureBase64 // Save the profile picture
+                DisplayName = model.DisplayName, // This could be null
+                ProfilePicture = model.ProfilePictureBase64 // This could be null
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -66,7 +67,6 @@ namespace QuestionInterfaceTry101.Server.Controllers
 
             return Ok("User registered successfully.");
         }
-
         private async Task CreateRoles()
         {
             if (!await _roleManager.RoleExistsAsync("Admin"))
@@ -99,15 +99,69 @@ namespace QuestionInterfaceTry101.Server.Controllers
             var user = await _userManager.FindByEmailAsync(model.Email);
             var token = await GenerateJwtToken(user);
 
-            // Return user details with the JWT
             return Ok(new
             {
                 Token = token,
-                Username = user.DisplayName,
-                ProfilePicture = user.ProfilePicture, // Send back the profile picture
+                Username = user.DisplayName ?? user.Email, // Fallback to email if no display name is set
+                ProfilePicture = user.ProfilePicture ?? string.Empty, // Return empty string if no profile picture is set
                 Role = await _userManager.GetRolesAsync(user) // Return user's roles
             });
         }
+        [HttpPut("update-profile")]
+        [Authorize]
+        public async Task<IActionResult> UpdateProfile([FromBody] RegisterModel model)
+        {
+            // Log the incoming request data for debugging
+            Console.WriteLine($"Received update request for user: {model.Email}, DisplayName: {model.DisplayName}");
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get the user's ID from the token
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                Console.WriteLine("User not found.");
+                return NotFound(new { message = "User not found." });
+            }
+
+            // Validate incoming data with more detailed checks
+            if (string.IsNullOrEmpty(model.Email))
+            {
+                Console.WriteLine("Email is missing.");
+                return BadRequest(new { message = "Email is required." });
+            }
+
+            if (string.IsNullOrEmpty(model.DisplayName))
+            {
+                Console.WriteLine("DisplayName is missing.");
+                return BadRequest(new { message = "DisplayName is required." });
+            }
+
+            // Log data before updating
+            Console.WriteLine($"Updating user {user.Email}, DisplayName: {model.DisplayName}");
+
+            // Update the user's profile details
+            user.Email = model.Email; // Update email
+            user.DisplayName = model.DisplayName ?? user.DisplayName; // Update display name
+            user.ProfilePicture = model.ProfilePictureBase64 ?? user.ProfilePicture; // Update picture
+
+            // Save changes and check for errors
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                Console.WriteLine("Profile updated successfully.");
+                return Ok(new { message = "Profile updated successfully." });
+            }
+            else
+            {
+                // Log detailed errors for debugging
+                foreach (var error in result.Errors)
+                {
+                    Console.WriteLine($"Error: {error.Description}");
+                }
+                return BadRequest(new { message = "Failed to update profile.", errors = result.Errors });
+            }
+        }
+
 
         // Method to generate JWT token (includes roles)
         private async Task<string> GenerateJwtToken(ApplicationUser user)

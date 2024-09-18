@@ -35,7 +35,6 @@ const QuestionInterface = () => {
             }
 
             const worksheetData = {
-                OwnerEmail: 'Darkmoonmasih@gmail.com',
                 Title: {
                     Text: worksheetTitle,
                     Config: { Style: textStyle, Styledegree: textStyleDegree }
