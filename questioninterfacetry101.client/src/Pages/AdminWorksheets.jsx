@@ -1,106 +1,111 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { Edit, Trash2, FileJson, Plus } from 'lucide-react';
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { Edit, Trash2, FileJson, Plus } from 'lucide-react'
 
 const getToken = () => {
-    return sessionStorage.getItem('jwtToken') || localStorage.getItem('jwtToken');
-};
+    return sessionStorage.getItem('jwtToken') || localStorage.getItem('jwtToken')
+}
+
+const truncateTitle = (title, maxLength) => {
+    if (title.length <= maxLength) return title
+    return title.slice(0, maxLength) + '...'
+}
 
 function AdminWorksheets() {
-    const [worksheets, setWorksheets] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const navigate = useNavigate();
+    const [worksheets, setWorksheets] = useState([])
+    const [searchTerm, setSearchTerm] = useState('')
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+    const navigate = useNavigate()
 
     useEffect(() => {
-        fetchWorksheets();
-    }, []);
+        fetchWorksheets()
+    }, [])
 
     const fetchWorksheets = async () => {
-        setLoading(true);
-        setError(null);
+        setLoading(true)
+        setError(null)
         try {
-            const token = getToken();
+            const token = getToken()
 
             if (!token) {
-                throw new Error('No JWT token found.');
+                throw new Error('No JWT token found.')
             }
 
-            console.log('Fetching worksheets...');
+            console.log('Fetching worksheets...')
             const response = await axios.get('https://localhost:7226/api/Worksheet', {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
-            });
+            })
 
-            console.log('API Response:', response.data);
+            console.log('API Response:', response.data)
 
             if (!Array.isArray(response.data)) {
-                throw new Error('API response is not an array');
+                throw new Error('API response is not an array')
             }
 
-            setWorksheets(response.data);
+            setWorksheets(response.data)
         } catch (error) {
-            console.error('Error fetching worksheets:', error);
-            setError(error.message);
+            console.error('Error fetching worksheets:', error)
+            setError(error.message)
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    };
+    }
 
     const handleEdit = (id) => {
-        navigate(`/Subject/WorksheetList/${id}`);
-    };
+        navigate(`/Subject/WorksheetList/${id}`)
+    }
 
     const handleDelete = async (id) => {
         try {
-            const token = getToken();
+            const token = getToken()
             if (!token) {
-                throw new Error('No JWT token found.');
+                throw new Error('No JWT token found.')
             }
             await axios.delete(`https://localhost:7226/api/Worksheet/${id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
-            });
-            setWorksheets(worksheets.filter(worksheet => worksheet.worksheetId !== id));
+            })
+            setWorksheets(worksheets.filter(worksheet => worksheet.worksheetId !== id))
         } catch (error) {
-            console.error('Error deleting worksheet:', error);
-            setError(error.message);
+            console.error('Error deleting worksheet:', error)
+            setError(error.message)
         }
-    };
+    }
 
     const handleGetJson = async (id) => {
         try {
-            const token = getToken();
+            const token = getToken()
             if (!token) {
-                throw new Error('No JWT token found.');
+                throw new Error('No JWT token found.')
             }
             const response = await axios.get(`https://localhost:7226/api/Worksheet/${id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
-            });
-            console.log(JSON.stringify(response.data, null, 2));
+            })
+            console.log(JSON.stringify(response.data, null, 2))
         } catch (error) {
-            console.error('Error fetching worksheet JSON:', error);
-            setError(error.message);
+            console.error('Error fetching worksheet JSON:', error)
+            setError(error.message)
         }
-    };
+    }
 
     const filteredWorksheets = worksheets.filter(worksheet => {
-        const title = worksheet.title && worksheet.title.text ? worksheet.title.text : '';
-        return title.toLowerCase().includes(searchTerm.toLowerCase());
-    });
+        const title = worksheet.title && worksheet.title.text ? worksheet.title.text : ''
+        return title.toLowerCase().includes(searchTerm.toLowerCase())
+    })
 
     if (loading) {
-        return <div className="min-h-screen bg-gray-900 text-gray-100 p-8 flex items-center justify-center">Loading...</div>;
+        return <div className="min-h-screen bg-gray-900 text-gray-100 p-8 flex items-center justify-center">Loading...</div>
     }
 
     if (error) {
-        return <div className="min-h-screen bg-gray-900 text-gray-100 p-8 flex items-center justify-center">Error: {error}</div>;
+        return <div className="min-h-screen bg-gray-900 text-gray-100 p-8 flex items-center justify-center">Error: {error}</div>
     }
 
     return (
@@ -140,7 +145,9 @@ function AdminWorksheets() {
                                     <tr key={worksheet.worksheetId} className="hover:bg-gray-700">
                                         <td className="px-6 py-4 whitespace-nowrap">{worksheet.worksheetId}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            {worksheet.title && worksheet.title.text ? worksheet.title.text : 'Untitled'}
+                                            {worksheet.title && worksheet.title.text
+                                                ? truncateTitle(worksheet.title.text, 30)
+                                                : 'Untitled'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">{worksheet.qus ? worksheet.qus.length : 0}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{new Date(worksheet.createdAt).toLocaleString()}</td>
@@ -168,7 +175,7 @@ function AdminWorksheets() {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="5" className="px-6 py-4 text-center text-gray-400">No worksheets available.</td>
+                                    <td colSpan={5} className="px-6 py-4 text-center text-gray-400">No worksheets available.</td>
                                 </tr>
                             )}
                         </tbody>
@@ -176,7 +183,7 @@ function AdminWorksheets() {
                 </div>
             </div>
         </div>
-    );
+    )
 }
 
-export default AdminWorksheets;
+export default AdminWorksheets

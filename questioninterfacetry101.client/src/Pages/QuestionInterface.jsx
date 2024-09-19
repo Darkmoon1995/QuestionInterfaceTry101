@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from 'react';
 import ReactModal from 'react-modal';
 import { PlusCircle, Edit2, Trash2 } from 'lucide-react';
@@ -6,7 +8,12 @@ const getToken = () => {
     return sessionStorage.getItem('jwtToken') || localStorage.getItem('jwtToken');
 };
 
-const QuestionInterface = () => {
+const truncateTitle = (title, maxLength) => {
+    if (title.length <= maxLength) return title;
+    return title.slice(0, maxLength) + '...';
+};
+
+export default function Component() {
     const [questions, setQuestions] = useState([]);
     const [editMode, setEditMode] = useState(false);
     const [currentQuestionId, setCurrentQuestionId] = useState(null);
@@ -28,7 +35,7 @@ const QuestionInterface = () => {
 
     const handleSaveAll = async () => {
         try {
-            const token = getToken(); // Get JWT token from session/local storage
+            const token = getToken();
             if (!token) {
                 alert('Please log in first.');
                 return;
@@ -60,19 +67,19 @@ const QuestionInterface = () => {
                 }))
             };
 
-            console.log('Worksheet Data:', worksheetData); // Log the data to check what is sent
+            console.log('Worksheet Data:', worksheetData);
 
             const response = await fetch('https://localhost:7226/api/Worksheet', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` // Pass JWT token in Authorization header
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(worksheetData),
             });
 
             if (!response.ok) {
-                const errorDetails = await response.text(); // Log any error details
+                const errorDetails = await response.text();
                 console.error('Error response from server:', errorDetails);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -80,7 +87,6 @@ const QuestionInterface = () => {
             const data = await response.json();
             alert('Worksheet saved successfully!');
 
-            // Reset all states after successful save
             setQuestions([]);
             setWorksheetTitle('');
             setWorksheetFinalMessage('');
@@ -92,6 +98,11 @@ const QuestionInterface = () => {
     };
 
     const handleAddQuestion = () => {
+        if (!questionTitle.trim()) {
+            alert("Question title cannot be empty");
+            return;
+        }
+
         const newQuestion = {
             id: editMode ? currentQuestionId : questions.length + 1,
             number1: parseInt(number1, 10) || 0,
@@ -111,7 +122,6 @@ const QuestionInterface = () => {
             setQuestions([...questions, newQuestion]);
         }
 
-        // Reset question-related state after adding/updating
         setEditMode(false);
         setCurrentQuestionId(null);
         setNumber1('');
@@ -150,6 +160,7 @@ const QuestionInterface = () => {
     const removeQuestion = (id) => {
         setQuestions(questions.filter(q => q.id !== id));
     };
+
     return (
         <div className="min-h-screen bg-gray-900 text-gray-100 p-8">
             <div className="max-w-4xl mx-auto">
@@ -258,15 +269,15 @@ const QuestionInterface = () => {
                 <h3 className="text-2xl font-bold mb-4">Questions</h3>
                 <div className="bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
                     {questions.map(question => (
-                        <div key={question.id} className="bg-gray-700 p-4 rounded-lg mb-4 flex justify-between items-center">
-                            <div>
-                                <h4 className="text-lg font-semibold mb-2">{question.id}. {question.title}</h4>
+                        <div key={question.id} className="bg-gray-700 p-4 rounded-lg mb-4 flex justify-between items-start">
+                            <div className="flex-grow mr-4">
+                                <h4 className="text-lg font-semibold mb-2 break-words">{question.id}. {truncateTitle(question.title, 50)}</h4>
                                 <p className="text-gray-300">{question.number1} {question.operation} {question.number2}</p>
                                 <p className="text-gray-300">SCT: {question.sct}</p>
                                 <p className="text-gray-300">Question Style: {question.TitleStyle}</p>
                                 <p className="text-gray-300">Style Degree: {question.TitleStyleDegree}</p>
                             </div>
-                            <div>
+                            <div className="flex-shrink-0">
                                 <button
                                     className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded mr-2"
                                     onClick={() => handleEditQuestion(question.id)}
@@ -403,6 +414,4 @@ const QuestionInterface = () => {
             </div>
         </div>
     );
-};
-
-export default QuestionInterface;
+}

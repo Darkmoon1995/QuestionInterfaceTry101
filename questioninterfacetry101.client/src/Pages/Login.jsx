@@ -30,16 +30,17 @@ function Login() {
 
         try {
             const response = await axios.post("https://localhost:7226/api/Auth/login", { email, password });
-            const { token, Username, ProfilePicture, Role } = response.data;
+            const { token } = response.data;
 
             if (token) {
-                // Store user data in either local or session storage
+                // Store the JWT token
                 const storage = rememberMe ? localStorage : sessionStorage;
                 storage.setItem("jwtToken", token);
-                storage.setItem("Username", Username);
-                storage.setItem("email", email); // Add email to storage
-                storage.setItem("ProfilePicture", ProfilePicture);
-                storage.setItem("roles", JSON.stringify(Role));
+                storage.setItem("email", email);
+                // Parse the token to extract roles
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const roles = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || [];
+                storage.setItem("roles", JSON.stringify(roles));  // Store roles
 
                 // Redirect user after successful login
                 navigate("/");

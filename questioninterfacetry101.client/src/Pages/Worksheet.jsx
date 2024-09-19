@@ -1,111 +1,128 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import ReactModal from 'react-modal';
-import { Edit2, Trash2, Plus, Save, X } from 'lucide-react';
+"use client"
+
+import React, { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import ReactModal from 'react-modal'
+import { Edit2, Trash2, Plus, Save, X } from 'lucide-react'
 
 const getToken = () => {
-    return sessionStorage.getItem('jwtToken') || localStorage.getItem('jwtToken');
-};
+    return sessionStorage.getItem('jwtToken') || localStorage.getItem('jwtToken')
+}
 
-const WorksheetDetails = () => {
-    const { worksheetId } = useParams();
-    const navigate = useNavigate();
-    const [worksheet, setWorksheet] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [visible, setVisible] = useState(false);
-    const [number1, setNumber1] = useState('');
-    const [number2, setNumber2] = useState('');
-    const [sct, setSct] = useState('');
-    const [operation, setOperation] = useState('+');
-    const [degree, setDegree] = useState('1');
-    const [editingQuestion, setEditingQuestion] = useState(null);
+const truncateTitle = (title, maxLength) => {
+    if (title.length <= maxLength) return title
+    return title.slice(0, maxLength) + '...'
+}
 
-    const [worksheetTitle, setWorksheetTitle] = useState('');
-    const [worksheetFinalMessage, setWorksheetFinalMessage] = useState('');
-    const [worksheetType, setWorksheetType] = useState('');
-    const [textStyle, setTextStyle] = useState('friendly');
-    const [textStyleDegree, setTextStyleDegree] = useState('1');
-    const [finalMessageStyle, setFinalMessageStyle] = useState('excited');
-    const [finalMessageStyleDegree, setFinalMessageStyleDegree] = useState('2');
-    const [questionTitle, setQuestionTitle] = useState('');
-    const [questionTitleStyle, setQuestionTitleStyle] = useState('cheerful');
-    const [questionTitleStyleDegree, setQuestionTitleStyleDegree] = useState('1');
+export default function WorksheetDetails() {
+    const { worksheetId } = useParams()
+    const navigate = useNavigate()
+    const [worksheet, setWorksheet] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [visible, setVisible] = useState(false)
+    const [editingQuestion, setEditingQuestion] = useState(null)
+
+    const [worksheetTitle, setWorksheetTitle] = useState('')
+    const [worksheetFinalMessage, setWorksheetFinalMessage] = useState('')
+    const [worksheetType, setWorksheetType] = useState('')
+    const [textStyle, setTextStyle] = useState('friendly')
+    const [textStyleDegree, setTextStyleDegree] = useState('1')
+    const [finalMessageStyle, setFinalMessageStyle] = useState('excited')
+    const [finalMessageStyleDegree, setFinalMessageStyleDegree] = useState('2')
+    const [questionTitle, setQuestionTitle] = useState('')
+    const [questionTitleStyle, setQuestionTitleStyle] = useState('cheerful')
+    const [questionTitleStyleDegree, setQuestionTitleStyleDegree] = useState('1')
+    const [number1, setNumber1] = useState('')
+    const [number2, setNumber2] = useState('')
+    const [operation, setOperation] = useState('+')
+    const [sct, setSct] = useState('')
 
     useEffect(() => {
         const fetchWorksheet = async () => {
             try {
-                const token = getToken();
+                const token = getToken()
                 const response = await axios.get(`https://localhost:7226/api/Worksheet/${worksheetId}`, {
                     headers: { Authorization: `Bearer ${token}` }
-                });
-                const data = response.data;
-                setWorksheet(data);
-                setWorksheetTitle(data.title.text);
-                setWorksheetFinalMessage(data.finalMessage.text);
-                setWorksheetType(data.worksheetType);
+                })
+                const data = response.data
+                setWorksheet(data)
+                setWorksheetTitle(data.title.text)
+                setWorksheetFinalMessage(data.finalMessage.text)
+                setWorksheetType(data.worksheetType)
+                setTextStyle(data.title.config.style)
+                setTextStyleDegree(data.title.config.styledegree)
+                setFinalMessageStyle(data.finalMessage.config.style)
+                setFinalMessageStyleDegree(data.finalMessage.config.styledegree)
             } catch (error) {
-                console.error('Error fetching worksheet:', error);
+                console.error('Error fetching worksheet:', error)
             } finally {
-                setLoading(false);
+                setLoading(false)
             }
-        };
+        }
 
-        fetchWorksheet();
-    }, [worksheetId]);
+        if (worksheetId) {
+            fetchWorksheet()
+        } else {
+            setLoading(false)
+        }
+    }, [worksheetId])
 
     const handleAddQuestion = () => {
+        if (!questionTitle.trim()) {
+            alert("Question title cannot be empty")
+            return
+        }
+
         const newQuestion = {
             order: editingQuestion !== null ? editingQuestion : worksheet.qus.length + 1,
             settings: {
-                number1,
-                number2,
+                number1: parseInt(number1, 10) || 0,
+                number2: parseInt(number2, 10) || 0,
                 operation,
-                degree
             },
             numberOfOptions: 4,
-            sct,
+            sct: parseInt(sct, 10) || 0,
             title: {
                 text: questionTitle,
                 config: { style: questionTitleStyle, styledegree: questionTitleStyleDegree }
             }
-        };
+        }
 
         const updatedQuestions = editingQuestion !== null
             ? worksheet.qus.map((question) =>
                 question.order === editingQuestion ? newQuestion : question
             )
-            : [...worksheet.qus, newQuestion];
+            : [...(worksheet?.qus || []), newQuestion]
 
-        setWorksheet({ ...worksheet, qus: updatedQuestions });
-        clearModalState();
-    };
+        setWorksheet(prev => ({ ...prev, qus: updatedQuestions }))
+        clearModalState()
+    }
 
     const handleCancel = () => {
-        clearModalState();
-    };
+        clearModalState()
+    }
 
     const clearModalState = () => {
-        setNumber1('');
-        setNumber2('');
-        setSct('');
-        setOperation('+');
-        setDegree('1');
-        setQuestionTitle('');
-        setQuestionTitleStyle('cheerful');
-        setQuestionTitleStyleDegree('1');
-        setEditingQuestion(null);
-        setVisible(false);
-    };
+        setNumber1('')
+        setNumber2('')
+        setSct('')
+        setOperation('+')
+        setQuestionTitle('')
+        setQuestionTitleStyle('cheerful')
+        setQuestionTitleStyleDegree('1')
+        setEditingQuestion(null)
+        setVisible(false)
+    }
 
     const removeQuestion = (order) => {
-        const updatedQuestions = worksheet.qus.filter((q) => q.order !== order);
-        setWorksheet({ ...worksheet, qus: updatedQuestions });
-    };
+        const updatedQuestions = worksheet.qus.filter((q) => q.order !== order)
+        setWorksheet({ ...worksheet, qus: updatedQuestions })
+    }
 
     const handleSaveAll = async () => {
         try {
-            const token = getToken();
+            const token = getToken()
             const worksheetData = {
                 ...worksheet,
                 title: { text: worksheetTitle, config: { style: textStyle, styledegree: textStyleDegree } },
@@ -118,7 +135,6 @@ const WorksheetDetails = () => {
                         number1: parseInt(q.settings.number1, 10),
                         number2: parseInt(q.settings.number2, 10),
                         operation: q.settings.operation,
-                        degree: q.settings.degree
                     },
                     sct: parseInt(q.sct, 10),
                     title: {
@@ -126,55 +142,62 @@ const WorksheetDetails = () => {
                         config: { style: q.title.config.style, styledegree: q.title.config.styledegree }
                     }
                 })),
-            };
+            }
 
-            const response = await axios.put(`https://localhost:7226/api/Worksheet/${worksheetId}`, worksheetData, {
+            const url = worksheetId
+                ? `https://localhost:7226/api/Worksheet/${worksheetId}`
+                : 'https://localhost:7226/api/Worksheet'
+            const method = worksheetId ? 'put' : 'post'
+
+            const response = await axios[method](url, worksheetData, {
                 headers: { Authorization: `Bearer ${token}` }
-            });
-            console.log('Response from server:', response);
-            alert('Worksheet saved successfully!');
+            })
+            console.log('Response from server:', response)
+            alert('Worksheet saved successfully!')
+            if (!worksheetId) {
+                navigate(`/worksheet/${response.data.id}`)
+            }
         } catch (error) {
-            console.error('Error saving worksheet:', error);
-            alert('Failed to save worksheet.');
+            console.error('Error saving worksheet:', error)
+            alert('Failed to save worksheet.')
         }
-    };
-
-    const handleRemoveWorksheet = async () => {
-        try {
-            const token = getToken();
-            await axios.delete(`https://localhost:7226/api/Worksheet/${worksheetId}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            alert('Worksheet removed successfully!');
-            navigate('/Grade');
-        } catch (error) {
-            console.error('Error removing worksheet:', error);
-            alert('Failed to remove worksheet.');
-        }
-    };
-
-    if (loading) {
-        return <div className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center">Loading...</div>;
     }
 
-    if (!worksheet) {
-        return <div className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center">Worksheet not found</div>;
+    const handleRemoveWorksheet = async () => {
+        if (!worksheetId) return
+        try {
+            const token = getToken()
+            await axios.delete(`https://localhost:7226/api/Worksheet/${worksheetId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            alert('Worksheet removed successfully!')
+            navigate('/Grade')
+        } catch (error) {
+            console.error('Error removing worksheet:', error)
+            alert('Failed to remove worksheet.')
+        }
+    }
+
+    if (loading) {
+        return <div className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center">Loading...</div>
     }
 
     return (
         <div className="min-h-screen bg-gray-900 text-gray-100 p-8">
             <div className="max-w-4xl mx-auto">
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-3xl font-bold">Worksheet ID: {worksheetId}</h2>
+                    <h2 className="text-3xl font-bold">{worksheetId ? `Worksheet ID: ${worksheetId}` : 'New Worksheet'}</h2>
                     <div>
                         <button onClick={handleSaveAll} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
                             <Save className="inline-block mr-2" size={16} />
                             Save All
                         </button>
-                        <button onClick={handleRemoveWorksheet} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                            <Trash2 className="inline-block mr-2" size={16} />
-                            Remove All
-                        </button>
+                        {worksheetId && (
+                            <button onClick={handleRemoveWorksheet} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                                <Trash2 className="inline-block mr-2" size={16} />
+                                Remove All
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -276,29 +299,29 @@ const WorksheetDetails = () => {
 
                 <h3 className="text-2xl font-bold mb-4">Questions</h3>
                 <div className="bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
-                    {worksheet.qus.map((question) => (
-                        <div key={question.order} className="bg-gray-700 p-4 rounded-lg mb-4 flex justify-between items-center">
-                            <div>
-                                <p className="text-lg font-semibold mb-2">Question {question.order}</p>
+                    {worksheet?.qus?.map((question) => (
+                        <div key={question.order} className="bg-gray-700 p-4 rounded-lg mb-4 flex justify-between items-start">
+                            <div className="flex-grow mr-4">
+                                <p className="text-lg font-semibold mb-2 break-words">{question.order}. {truncateTitle(question.title.text, 50)}</p>
                                 <p>{question.settings.number1} {question.settings.operation} {question.settings.number2}</p>
                                 <p>SCT: {question.sct}</p>
                                 <p>Question Style: {question.title.config.style}</p>
-                                <p>Style Degree: {question.settings.degree}</p>
+                                <p>Style Degree: {question.title.config.styledegree}</p>
                             </div>
-                            <div>
+                            <div className="flex-shrink-0">
                                 <button
                                     className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded mr-2"
                                     onClick={() => {
-                                        setNumber1(question.settings.number1);
-                                        setNumber2(question.settings.number2);
-                                        setSct(question.sct);
-                                        setOperation(question.settings.operation);
-                                        setDegree(question.settings.degree);
-                                        setQuestionTitle(question.title.text);
-                                        setQuestionTitleStyle(question.title.config.style);
-                                        setQuestionTitleStyleDegree(question.title.config.styledegree);
-                                        setEditingQuestion(question.order);
-                                        setVisible(true);
+                                        setNumber1(question.settings.number1)
+                                        setNumber2(question.settings.number2)
+                                        setSct(question.sct)
+                                        setOperation(question.settings.operation)
+                                        setQuestionTitle(question.title.text)
+                                        setQuestionTitleStyle(question.title.config.style)
+                                        setQuestionTitleStyleDegree(question.title.config.styledegree)
+                                        setEditingQuestion(question.order)
+                                        set
+                                        Visible(true)
                                     }}
                                 >
                                     <Edit2 size={16} />
@@ -434,7 +457,5 @@ const WorksheetDetails = () => {
                 </ReactModal>
             </div>
         </div>
-    );
-};
-
-export default WorksheetDetails;
+    )
+}
