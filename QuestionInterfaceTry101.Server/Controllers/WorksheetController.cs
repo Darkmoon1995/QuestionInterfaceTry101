@@ -26,20 +26,16 @@ namespace QuestionInterfaceTry101.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WorksheetModel>>> GetWorksheets()
         {
-            // Check if the user is in the Admin role
             var isAdmin = User.IsInRole("Admin");
 
             if (isAdmin)
             {
-                // If the user is an Admin, return all worksheets
                 return await _context.Worksheets.Include(w => w.qus).ToListAsync();
             }
             else
             {
-                // Get the current user's email from the JWT claims
                 var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
-                // Return only the worksheets owned by the current user
                 return await _context.Worksheets
                                      .Where(w => w.OwnerEmail == userEmail)
                                      .Include(w => w.qus)
@@ -54,7 +50,6 @@ namespace QuestionInterfaceTry101.Server.Controllers
             var isAdmin = User.IsInRole("Admin");
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
-            // Admin can access any worksheet; regular users can only access their own
             var worksheet = await _context.Worksheets.Include(w => w.qus)
                                                      .FirstOrDefaultAsync(w => w.WorksheetId == id && (isAdmin || w.OwnerEmail == userEmail));
 
@@ -75,7 +70,6 @@ namespace QuestionInterfaceTry101.Server.Controllers
                 return BadRequest("Worksheet is null.");
             }
 
-            // Get the email from the authenticated user's claims
             var ownerEmail = User.FindFirst(ClaimTypes.Email)?.Value;
 
             if (string.IsNullOrEmpty(ownerEmail))
@@ -83,10 +77,8 @@ namespace QuestionInterfaceTry101.Server.Controllers
                 return Unauthorized("Could not determine the user's email.");
             }
 
-            // Assign the authenticated user's email as the OwnerEmail
             worksheet.OwnerEmail = ownerEmail;
 
-            // Set question order
             int orderCounter = 1;
             foreach (var qus in worksheet.qus)
             {

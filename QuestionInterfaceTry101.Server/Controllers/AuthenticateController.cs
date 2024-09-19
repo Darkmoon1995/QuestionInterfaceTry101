@@ -55,10 +55,8 @@ namespace QuestionInterfaceTry101.Server.Controllers
                 return BadRequest(result.Errors);
             }
 
-            // Ensure roles exist in the system
             await CreateRoles();
 
-            // Assign the user to the specified role (default is "User")
             var role = string.IsNullOrEmpty(model.Role) ? "User" : model.Role;
             await _userManager.AddToRoleAsync(user, role);
 
@@ -100,8 +98,8 @@ namespace QuestionInterfaceTry101.Server.Controllers
             return Ok(new
             {
                 Token = token,
-                Username = user.Email, // No display name, returning Email as Username
-                Role = await _userManager.GetRolesAsync(user) // Return user's roles
+                Username = user.Email, 
+                Role = await _userManager.GetRolesAsync(user) 
             });
         }
 

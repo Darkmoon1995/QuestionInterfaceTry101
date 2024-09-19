@@ -20,6 +20,7 @@ function Login() {
     };
 
     // Handle form submission
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!email || !password) {
@@ -37,13 +38,16 @@ function Login() {
                 const storage = rememberMe ? localStorage : sessionStorage;
                 storage.setItem("jwtToken", token);
                 storage.setItem("email", email);
-                // Parse the token to extract roles
+
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 const roles = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || [];
-                storage.setItem("roles", JSON.stringify(roles));  // Store roles
+                storage.setItem("roles", JSON.stringify(roles));  
 
-                // Redirect user after successful login
-                navigate("/");
+                if (roles.includes("Admin")) {
+                    navigate("/AdminWorksheets");
+                } else {
+                    navigate("/");
+                }
             } else {
                 setError("Login failed. Please try again.");
             }
@@ -51,6 +55,7 @@ function Login() {
             setError("Error logging in. Please check your credentials.");
         }
     };
+
 
     return (
         <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
