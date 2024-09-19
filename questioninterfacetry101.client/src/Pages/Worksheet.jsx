@@ -56,6 +56,7 @@ export default function WorksheetDetails() {
                 setFinalMessageStyleDegree(data.finalMessage.config.styledegree)
             } catch (error) {
                 console.error('Error fetching worksheet:', error)
+                alert('Failed to fetch worksheet. Please try again.')
             } finally {
                 setLoading(false)
             }
@@ -312,16 +313,15 @@ export default function WorksheetDetails() {
                                 <button
                                     className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded mr-2"
                                     onClick={() => {
-                                        setNumber1(question.settings.number1)
-                                        setNumber2(question.settings.number2)
-                                        setSct(question.sct)
+                                        setNumber1(question.settings.number1.toString())
+                                        setNumber2(question.settings.number2.toString())
+                                        setSct(question.sct.toString())
                                         setOperation(question.settings.operation)
                                         setQuestionTitle(question.title.text)
                                         setQuestionTitleStyle(question.title.config.style)
                                         setQuestionTitleStyleDegree(question.title.config.styledegree)
                                         setEditingQuestion(question.order)
-                                        set
-                                        Visible(true)
+                                        setVisible(true)
                                     }}
                                 >
                                     <Edit2 size={16} />

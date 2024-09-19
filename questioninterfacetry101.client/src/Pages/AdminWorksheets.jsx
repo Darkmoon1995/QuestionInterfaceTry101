@@ -40,8 +40,6 @@ function AdminWorksheets() {
                 },
             })
 
-            console.log('API Response:', response.data)
-
             if (!Array.isArray(response.data)) {
                 throw new Error('API response is not an array')
             }

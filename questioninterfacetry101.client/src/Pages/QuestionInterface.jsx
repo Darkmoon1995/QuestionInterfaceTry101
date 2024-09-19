@@ -351,14 +351,14 @@ export default function Component() {
                                 value={operation}
                                 onChange={(e) => setOperation(e.target.value)}
                             >
-                                <option value="+">+</option>
-                                <option value="-">-</option>
-                                <option value="*">*</option>
-                                <option value="/">/</option>
+                                <option value="+">Addition</option>
+                                <option value="-">Subtraction</option>
+                                <option value="*">Multiplication</option>
+                                <option value="/">Divion</option>
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium mb-1" htmlFor="SCT">SCT:</label>
+                            <label className="block text-sm font-medium mb-1" htmlFor="SCT">Time For Question (seconds):</label>
                             <input
                                 type="number"
                                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
