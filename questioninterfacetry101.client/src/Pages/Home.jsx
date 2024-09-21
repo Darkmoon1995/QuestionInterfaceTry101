@@ -21,7 +21,7 @@ function Home() {
     const handleButtonClick = (path) => {
         let url = '';
 
-        if (path === 'contact') {
+        if (path === 'Subject') {
             url = '/subject';
         } else {
             url = `/${path}`;
@@ -43,7 +43,7 @@ function Home() {
                             </div>
                         }
                         value2="Math, science..."
-                        value3="contact"
+                        value3="Subject"
                         onClick={handleButtonClick}
                     />
                     <CustomButton
@@ -55,7 +55,7 @@ function Home() {
                             </div>
                         }
                         value2="Math, science..."
-                        value3="contact"
+                        value3="Subject"
                         onClick={handleButtonClick}
                     />
                     <CustomButton
@@ -67,7 +67,7 @@ function Home() {
                             </div>
                         }
                         value2="Math, science..."
-                        value3="contact"
+                        value3="Subject"
                         onClick={handleButtonClick}
                     />
                 </div>

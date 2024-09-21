@@ -37,6 +37,7 @@ export default function WorksheetDetails() {
     const [number2, setNumber2] = useState('')
     const [operation, setOperation] = useState('+')
     const [sct, setSct] = useState('')
+    const [numberOfOptions, setNumberOfOptions] = useState(4)
 
     useEffect(() => {
         const fetchWorksheet = async () => {
@@ -82,7 +83,7 @@ export default function WorksheetDetails() {
                 number2: parseInt(number2, 10) || 0,
                 operation,
             },
-            numberOfOptions: 4,
+            numberOfOptions: parseInt(numberOfOptions, 10),
             sct: parseInt(sct, 10) || 0,
             title: {
                 text: questionTitle,
@@ -112,6 +113,7 @@ export default function WorksheetDetails() {
         setQuestionTitle('')
         setQuestionTitleStyle('cheerful')
         setQuestionTitleStyleDegree('1')
+        setNumberOfOptions(4)
         setEditingQuestion(null)
         setVisible(false)
     }
@@ -137,6 +139,7 @@ export default function WorksheetDetails() {
                         number2: parseInt(q.settings.number2, 10),
                         operation: q.settings.operation,
                     },
+                    numberOfOptions: parseInt(q.numberOfOptions, 10),
                     sct: parseInt(q.sct, 10),
                     title: {
                         text: q.title.text,
@@ -172,7 +175,7 @@ export default function WorksheetDetails() {
                 headers: { Authorization: `Bearer ${token}` }
             })
             alert('Worksheet removed successfully!')
-            navigate('/Grade')
+            navigate('/')
         } catch (error) {
             console.error('Error removing worksheet:', error)
             alert('Failed to remove worksheet.')
@@ -308,6 +311,7 @@ export default function WorksheetDetails() {
                                 <p>SCT: {question.sct}</p>
                                 <p>Question Style: {question.title.config.style}</p>
                                 <p>Style Degree: {question.title.config.styledegree}</p>
+                                <p>Number of Options: {question.numberOfOptions}</p>
                             </div>
                             <div className="flex-shrink-0">
                                 <button
@@ -320,6 +324,7 @@ export default function WorksheetDetails() {
                                         setQuestionTitle(question.title.text)
                                         setQuestionTitleStyle(question.title.config.style)
                                         setQuestionTitleStyleDegree(question.title.config.styledegree)
+                                        setNumberOfOptions(question.numberOfOptions)
                                         setEditingQuestion(question.order)
                                         setVisible(true)
                                     }}
@@ -436,6 +441,19 @@ export default function WorksheetDetails() {
                                     <option value="3">3</option>
                                 </select>
                             </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1" htmlFor="NumberOfOptions">Number of Options:</label>
+                            <select
+                                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                id="NumberOfOptions"
+                                value={numberOfOptions}
+                                onChange={(e) => setNumberOfOptions(e.target.value)}
+                            >
+                                <option value="2">2</option>
+                                <option value="4">4</option>
+                                <option value="8">8</option>
+                            </select>
                         </div>
                         <div className="flex justify-end space-x-2 mt-6">
                             <button

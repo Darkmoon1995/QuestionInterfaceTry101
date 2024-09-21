@@ -32,6 +32,7 @@ export default function Component() {
     const [questionTitle, setQuestionTitle] = useState('');
     const [questionTitleStyle, setQuestionTitleStyle] = useState('cheerful');
     const [questionTitleStyleDegree, setQuestionTitleStyleDegree] = useState('1');
+    const [numberOfOptions, setNumberOfOptions] = useState(4);
 
     const handleSaveAll = async () => {
         try {
@@ -62,7 +63,7 @@ export default function Component() {
                         Number2: parseInt(q.number2, 10),
                         Operation: q.operation
                     },
-                    NumberOfOptions: 4,
+                    NumberOfOptions: q.numberOfOptions,
                     Sct: parseInt(q.sct, 10)
                 }))
             };
@@ -111,7 +112,8 @@ export default function Component() {
             operation,
             title: questionTitle,
             TitleStyle: questionTitleStyle,
-            TitleStyleDegree: questionTitleStyleDegree
+            TitleStyleDegree: questionTitleStyleDegree,
+            numberOfOptions: numberOfOptions
         };
 
         if (editMode) {
@@ -128,6 +130,7 @@ export default function Component() {
         setNumber2('');
         setSct('');
         setQuestionTitle('');
+        setNumberOfOptions(4);
         setIsVisible(false);
     };
 
@@ -138,6 +141,7 @@ export default function Component() {
         setNumber2('');
         setSct('');
         setQuestionTitle('');
+        setNumberOfOptions(4);
         setIsVisible(false);
     };
 
@@ -153,6 +157,7 @@ export default function Component() {
             setQuestionTitle(question.title);
             setQuestionTitleStyle(question.TitleStyle);
             setQuestionTitleStyleDegree(question.TitleStyleDegree);
+            setNumberOfOptions(question.numberOfOptions);
             setIsVisible(true);
         }
     };
@@ -276,6 +281,7 @@ export default function Component() {
                                 <p className="text-gray-300">SCT: {question.sct}</p>
                                 <p className="text-gray-300">Question Style: {question.TitleStyle}</p>
                                 <p className="text-gray-300">Style Degree: {question.TitleStyleDegree}</p>
+                                <p className="text-gray-300">Number of Options: {question.numberOfOptions}</p>
                             </div>
                             <div className="flex-shrink-0">
                                 <button
@@ -354,7 +360,7 @@ export default function Component() {
                                 <option value="+">Addition</option>
                                 <option value="-">Subtraction</option>
                                 <option value="*">Multiplication</option>
-                                <option value="/">Divion</option>
+                                <option value="/">Division</option>
                             </select>
                         </div>
                         <div>
@@ -394,6 +400,19 @@ export default function Component() {
                                     <option value="3">3</option>
                                 </select>
                             </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1" htmlFor="NumberOfOptions">Number of Options:</label>
+                            <select
+                                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                id="NumberOfOptions"
+                                value={numberOfOptions}
+                                onChange={(e) => setNumberOfOptions(parseInt(e.target.value, 10))}
+                            >
+                                <option value={2}>2</option>
+                                <option value={4}>4</option>
+                                <option value={8}>8</option>
+                            </select>
                         </div>
                         <div className="flex justify-end space-x-2 mt-6">
                             <button
